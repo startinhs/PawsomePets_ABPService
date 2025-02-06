@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-configmap
+data:
+  appsettings.json: |-
+    {
+    "App": {
+        "SelfUrl": "{{ include "pawsomepets.hosts.blazorwebapp" . }}"
+    },
+    "AuthServer": {
+        "Authority": "{{ include "pawsomepets.hosts.blazorwebapp" . }}",        "ClientId": "PawsomePets_BlazorWebApp",
+        "ResponseType": "code"
+    },
+    "RemoteServices": {
+        "Default": {
+          "BaseUrl": "{{ include "pawsomepets.hosts.blazorwebapp" . }}"        },
+        "AbpAccountPublic": {
+          "BaseUrl": "{{ include "pawsomepets.hosts.blazorwebapp" . }}"        }
+    },
+    "AbpCli": {
+        "Bundle": {
+        "Mode": "BundleAndMinify", /* Options: None, Bundle, BundleAndMinify */
+        "Name": "global"
+        }
+    }
+    }

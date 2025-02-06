@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  pawsomepets-blazor:
+    image: mycompanyname/pawsomepets-blazor:latest
+    container_name: pawsomepets-blazor
+    build:
+      context: ../../
+      dockerfile: src/PawsomePets.Blazor/Dockerfile.local
+    environment:
+      - ASPNETCORE_URLS=https://+:443;http://+:80;
+      - Kestrel__Certificates__Default__Path=/root/certificate/localhost.pfx
+      - Kestrel__Certificates__Default__Password=574255a3-afe8-47fa-b933-d2cb5859ec96
+      - App__SelfUrl=https://localhost:44314
+      - AuthServer__RequireHttpsMetadata=false      
+      - AuthServer__Authority=http://pawsomepets-blazor
+      - ConnectionStrings__Default=mongodb://mongodb/PawsomePets
+    ports:
+      - "44314:443"
+    restart: on-failure
+    volumes:
+      - ./certs:/root/certificate
+    networks:
+      - abp-network
+
+  db-migrator:
+    image: mycompanyname/pawsomepets-db-migrator:latest
+    container_name: db-migrator
+    build:
+      context: ../../
+      dockerfile: src/PawsomePets.DbMigrator/Dockerfile.local
+    environment:
+      - OpenIddict__Applications__PawsomePets_BlazorServerTiered__RootUrl=https://localhost:44314
+      - OpenIddict__Applications__PawsomePets_Swagger__RootUrl=https://localhost:44359
+      - ConnectionStrings__Default=mongodb://mongodb/PawsomePets
+      - Redis__Configuration=redis
+    restart: on-failure
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - abp-network
+  
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.2
+    ports:
+      - "27017:27017"
+    volumes:
+       - mongodb_data:/data/db
+    networks:
+      - abp-network
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 10    
+
+volumes:
+  mongodb_data:
+    name: pawsomepets_mongodb_data  
+networks:
+  abp-network:
+    name: pawsomepets-network
+    driver: bridge

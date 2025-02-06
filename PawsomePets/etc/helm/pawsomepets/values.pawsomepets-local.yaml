@@ -1,0 +1,11 @@
+global:
+  hosts:
+    dbmigrator: "[RELEASE_NAME]-dbmigrator"
+    blazorwebapp: "[RELEASE_NAME]-blazorwebapp"
+  connectionStrings:
+    default: "mongodb://[RELEASE_NAME]-mongodb:27017/PawsomePets"
+  dotnetEnvironment: "Staging"
+  disablePII: "false"
+  stringEncryptionDefaultPassPhrase: "tf9ROkRUj4vzdjQA"
+  abpStudioClient:
+    isLinkEnabled: "true"

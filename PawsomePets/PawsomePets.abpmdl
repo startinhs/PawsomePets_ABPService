@@ -1,0 +1,96 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXTheme": {
+      "version": "4.0.5",
+      "isInstalled": true
+    },
+    "Volo.Chat": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.LanguageManagement": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.FileManagement": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.OpenIddict.Pro": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.Saas": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.Identity.Pro": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.Account.Pro": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "9.0.4",
+      "isInstalled": true
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "9.0.4",
+      "isInstalled": true
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {}
+    }
+  },
+  "packages": {
+    "PawsomePets.Application": {
+      "path": "src/PawsomePets.Application/PawsomePets.Application.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.MongoDB": {
+      "path": "src/PawsomePets.MongoDB/PawsomePets.MongoDB.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.Domain.Shared": {
+      "path": "src/PawsomePets.Domain.Shared/PawsomePets.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.Application.Contracts": {
+      "path": "src/PawsomePets.Application.Contracts/PawsomePets.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.HttpApi": {
+      "path": "src/PawsomePets.HttpApi/PawsomePets.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.HttpApi.Client": {
+      "path": "src/PawsomePets.HttpApi.Client/PawsomePets.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.DbMigrator": {
+      "path": "src/PawsomePets.DbMigrator/PawsomePets.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.Blazor": {
+      "path": "src/PawsomePets.Blazor/PawsomePets.Blazor.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.Blazor.Client": {
+      "path": "src/PawsomePets.Blazor.Client/PawsomePets.Blazor.Client.abppkg",
+      "folder": "src"
+    },
+    "PawsomePets.Domain": {
+      "path": "src/PawsomePets.Domain/PawsomePets.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}

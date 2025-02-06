@@ -1,0 +1,4 @@
+port: 27017
+image:
+  repository: bitnami/mongodb
+  tag: 6.0.9-debian-11-r5
