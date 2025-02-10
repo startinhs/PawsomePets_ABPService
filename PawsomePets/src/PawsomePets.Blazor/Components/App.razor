@@ -17,38 +17,37 @@
     <title>PawsomePets</title>
     <base href="/" />
     
-    <AbpStyles BundleName="@BlazorLeptonXThemeBundles.Styles.Global" WebAssemblyStyleFiles="GlobalStyles" @rendermode="InteractiveAuto" />
-    
-    <HeadOutlet @rendermode="InteractiveAuto" />
+    <AbpStyles BundleName="@BlazorLeptonXThemeBundles.Styles.Global" @rendermode="InteractiveServer"/>
+
+    <HeadOutlet @rendermode="InteractiveServer"/>
 
     <AppearanceStyles/>
-    
+
 </head>
 <body class="abp-application-layout @rtl">
 
-    <Routes @rendermode="InteractiveAuto" />
+<Routes @rendermode="InteractiveServer"/>
 
-    <div id="blazor-error-ui">
-        @if (Env.IsDevelopment())
-        {
-            <text>An unhandled exception has occurred. See browser dev tools for details.</text>
-        }
-        else if (Env.IsStaging() || Env.IsProduction())
-        {
-            <text>An error has occurred. This application may no longer respond until reloaded.</text>
-        }
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-    
-    <AbpScripts BundleName="@BlazorLeptonXThemeBundles.Scripts.Global" WebAssemblyScriptFiles="GlobalScripts" @rendermode="InteractiveAuto" />
+<div id="blazor-error-ui">
+    @if (Env.IsDevelopment())
+    {
+        <text>An unhandled exception has occurred. See browser dev tools for details.</text>
+    }
+    else if (Env.IsStaging() || Env.IsProduction())
+    {
+        <text>An error has occurred. This application may no longer respond until reloaded.</text>
+    }
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
 
-    <script src="_framework/blazor.web.js"></script>
+<AbpScripts BundleName="@BlazorLeptonXThemeBundles.Scripts.Global" @rendermode="InteractiveServer"/>
+
+<script src="_framework/blazor.web.js"></script>
 
 </body>
 </html>
-
-@code{
+@* @code{
     private List<string> GlobalStyles =>
     [
         "global.css",
@@ -60,4 +59,4 @@
     [
         "global.js"
     ];
-}
+} *@
