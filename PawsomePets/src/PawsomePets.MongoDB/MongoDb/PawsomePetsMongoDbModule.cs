@@ -1,3 +1,4 @@
+using PawsomePets.DogPets;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.BackgroundJobs.MongoDB;
 using Volo.Abp.FeatureManagement.MongoDB;
@@ -36,6 +37,8 @@ public class PawsomePetsMongoDbModule : AbpModule
         context.Services.AddMongoDbContext<PawsomePetsMongoDbContext>(options =>
         {
             options.AddDefaultRepositories();
+            options.AddRepository<DogPet, DogPets.MongoDogPetRepository>();
+
         });
 
         context.Services.AddAlwaysDisableUnitOfWorkTransaction();

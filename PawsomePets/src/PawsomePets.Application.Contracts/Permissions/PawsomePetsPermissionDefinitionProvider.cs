@@ -16,6 +16,11 @@ public class PawsomePetsPermissionDefinitionProvider : PermissionDefinitionProvi
 
         //Define your own permissions here. Example:
         //myGroup.AddPermission(PawsomePetsPermissions.MyPermission1, L("Permission:MyPermission1"));
+
+        var dogPetPermission = myGroup.AddPermission(PawsomePetsPermissions.DogPets.Default, L("Permission:DogPets"));
+        dogPetPermission.AddChild(PawsomePetsPermissions.DogPets.Create, L("Permission:Create"));
+        dogPetPermission.AddChild(PawsomePetsPermissions.DogPets.Edit, L("Permission:Edit"));
+        dogPetPermission.AddChild(PawsomePetsPermissions.DogPets.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)

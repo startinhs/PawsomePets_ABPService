@@ -1,4 +1,4 @@
-﻿namespace PawsomePets.Blazor.Client.Navigation;
+namespace PawsomePets.Blazor.Client.Navigation;
 
 public class PawsomePetsMenus
 {
@@ -7,4 +7,7 @@ public class PawsomePetsMenus
     public const string Home = Prefix + ".Home";
     public const string HostDashboard = Prefix + ".HostDashboard";
     public const string TenantDashboard = Prefix + ".TenantDashboard";
+
+    public const string DogPets = Prefix + ".DogPets";
+
 }

@@ -1,4 +1,6 @@
-﻿using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using PawsomePets.Localization;
@@ -41,7 +43,7 @@ public class PawsomePetsMenuContributor : IMenuContributor
     private static async Task ConfigureMainMenuAsync(MenuConfigurationContext context)
     {
         var l = context.GetLocalizer<PawsomePetsResource>();
-        
+
         //Administration
         var administration = context.Menu.GetAdministration();
         administration.Order = 5;
@@ -87,8 +89,17 @@ public class PawsomePetsMenuContributor : IMenuContributor
 
         //Administration->Settings
         administration.SetSubItemOrder(SettingManagementMenus.GroupName, 7);
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                PawsomePetsMenus.DogPets,
+                l["Menu:DogPets"],
+                url: "/dog-pets",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: PawsomePetsPermissions.DogPets.Default)
+        );
     }
-    
+
     private async Task ConfigureUserMenuAsync(MenuConfigurationContext context)
     {
         if (OperatingSystem.IsBrowser())
@@ -98,10 +109,10 @@ public class PawsomePetsMenuContributor : IMenuContributor
             var authServerUrl = _configuration["AuthServer:Authority"] ?? "";
             var accountResource = context.GetLocalizer<AccountResource>();
 
-            context.Menu.AddItem(new ApplicationMenuItem("Account.Manage", accountResource["MyAccount"], $"{authServerUrl.EnsureEndsWith('/')}Account/Manage", icon: "fa fa-cog", order: 900,  target: "_blank").RequireAuthenticated());
-            context.Menu.AddItem(new ApplicationMenuItem("Account.SecurityLogs", accountResource["MySecurityLogs"], $"{authServerUrl.EnsureEndsWith('/')}Account/SecurityLogs", icon: "fa fa-user-shield", order: 901,  target: "_blank").RequireAuthenticated());
+            context.Menu.AddItem(new ApplicationMenuItem("Account.Manage", accountResource["MyAccount"], $"{authServerUrl.EnsureEndsWith('/')}Account/Manage", icon: "fa fa-cog", order: 900, target: "_blank").RequireAuthenticated());
+            context.Menu.AddItem(new ApplicationMenuItem("Account.SecurityLogs", accountResource["MySecurityLogs"], $"{authServerUrl.EnsureEndsWith('/')}Account/SecurityLogs", icon: "fa fa-user-shield", order: 901, target: "_blank").RequireAuthenticated());
             context.Menu.AddItem(new ApplicationMenuItem("Account.Sessions", accountResource["Sessions"], url: $"{authServerUrl.EnsureEndsWith('/')}Account/Sessions", icon: "fa fa-clock", order: 902, target: "_blank").RequireAuthenticated());
-            
+
         }
         else
         {
