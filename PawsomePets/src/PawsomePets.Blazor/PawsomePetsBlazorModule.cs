@@ -62,6 +62,12 @@ using Volo.Chat;
 using Volo.Saas.Host;
 using Volo.Saas.Host.Blazor;
 using Volo.Saas.Host.Blazor.Server;
+using nRetailApp.FileUploads.AbpBlobContainers;
+using Volo.Abp.BlobStoring;
+using Volo.Abp.BlobStoring.Aws;
+using Volo.Abp.BlobStoring.Azure;
+using Volo.Abp.BlobStoring.Database;
+using Volo.Abp.BlobStoring.FileSystem;
 
 namespace PawsomePets.Blazor;
 
@@ -83,7 +89,8 @@ namespace PawsomePets.Blazor;
     typeof(SaasHostBlazorServerModule),
     typeof(ChatBlazorServerModule),
     typeof(ChatSignalRModule),
-    typeof(AbpAspNetCoreSerilogModule)
+    typeof(AbpAspNetCoreSerilogModule),
+    typeof(AbpBlobStoringModule)
    )]
 public class PawsomePetsBlazorModule : AbpModule
 {
@@ -131,6 +138,48 @@ public class PawsomePetsBlazorModule : AbpModule
         PreConfigure<AbpAspNetCoreComponentsWebOptions>(options =>
         {
             options.IsBlazorWebApp = true;
+        });
+
+        Configure<AbpBlobStoringOptions>(options =>
+        {
+            options.Containers.Configure<AzureContainer>(container =>
+            {
+                container.UseAzure(azure =>
+                {
+                    azure.ConnectionString = configuration["Blob:ConnectionString"];
+                    azure.ContainerName = configuration["Blob:ContainerName"];
+                    azure.CreateContainerIfNotExists = true;
+                });
+            });
+
+            options.Containers.Configure<AwsContainer>(container =>
+            {
+                container.UseAws(Aws =>
+                {
+                    Aws.ContainerName = configuration["S3BucketName"];
+                    Aws.Region = configuration["S3Region"];
+                    Aws.AccessKeyId = configuration["S3AccessKey"];
+                    Aws.SecretAccessKey = configuration["S3SecretAccessKey"];
+                    Aws.Policy = configuration["S3Policy"];
+                    //Aws.DurationSeconds = "expiration date";
+                    Aws.CreateContainerIfNotExists = true;
+                });
+            });
+
+            options.Containers.Configure<DatabaseContainer>(container =>
+            {
+                container.UseDatabase();
+            });
+
+            options.Containers.Configure<FileSystemContainer>(container =>
+            {
+                container.UseFileSystem(fileSystem =>
+                {
+                    var relativePath = configuration["FileSystemPath"];
+                    var absolutePath = Path.Combine(hostingEnvironment.ContentRootPath, relativePath);
+                    fileSystem.BasePath = absolutePath;
+                });
+            });
         });
     }
 
