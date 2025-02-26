@@ -2,7 +2,7 @@ using System;
 
 namespace PawsomePets.DogPets
 {
-    public abstract class DogPetExcelDtoBase
+    public class DogPetExcelDto
     {
         public string? Name { get; set; }
         public string? Breed { get; set; }

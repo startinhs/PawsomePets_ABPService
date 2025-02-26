@@ -6,8 +6,9 @@ using Volo.Abp.Domain.Entities;
 
 namespace PawsomePets.DogPets
 {
-    public abstract class DogPetDtoBase : EntityDto<int>, IHasConcurrencyStamp
+    public class DogPetDto : EntityDto<int>, IHasConcurrencyStamp
     {
+        public Guid ImageId { get; set; }
         public string? Name { get; set; }
         public string? Breed { get; set; }
         public float Age { get; set; }

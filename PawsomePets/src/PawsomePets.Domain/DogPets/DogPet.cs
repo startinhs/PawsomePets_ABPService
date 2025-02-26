@@ -12,8 +12,10 @@ using Volo.Abp;
 
 namespace PawsomePets.DogPets
 {
-    public abstract class DogPetBase : Entity<int>, IHasConcurrencyStamp
+    public class DogPet : Entity<int>, IHasConcurrencyStamp
     {
+        public virtual Guid ImageId { get; set; }
+
         [CanBeNull]
         public virtual string? Name { get; set; }
 
@@ -46,15 +48,16 @@ namespace PawsomePets.DogPets
 
         public string ConcurrencyStamp { get; set; }
 
-        protected DogPetBase()
+        protected DogPet()
         {
 
         }
 
-        public DogPetBase(float age, float weight, int vaccinations, decimal price, float promotionPecents, bool isStock, string? name = null, string? breed = null, string? gender = null, string? color = null, string? healthStatus = null, string? otherInformation = null)
+        public DogPet(Guid imageId, float age, float weight, int vaccinations, decimal price, float promotionPecents, bool isStock, string? name = null, string? breed = null, string? gender = null, string? color = null, string? healthStatus = null, string? otherInformation = null)
         {
             ConcurrencyStamp = Guid.NewGuid().ToString("N");
 
+            ImageId = imageId;
             Age = age;
             Weight = weight;
             Vaccinations = vaccinations;

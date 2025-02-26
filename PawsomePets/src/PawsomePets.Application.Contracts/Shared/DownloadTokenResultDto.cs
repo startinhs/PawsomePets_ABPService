@@ -1,6 +1,6 @@
 namespace PawsomePets.Shared;
 
-public abstract class DownloadTokenResultDtoBase
+public class DownloadTokenResultDto
 {
     public string Token { get; set; } = null!;
 }

@@ -2,11 +2,11 @@ using Volo.Abp.Application.Dtos;
 
 namespace PawsomePets.Shared
 {
-    public abstract class LookupRequestDtoBase : PagedResultRequestDto
+    public class LookupRequestDto : PagedResultRequestDto
     {
         public string? Filter { get; set; }
 
-        public LookupRequestDtoBase()
+        public LookupRequestDto()
         {
             MaxResultCount = MaxMaxResultCount;
         }

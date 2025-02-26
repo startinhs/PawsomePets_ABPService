@@ -16,5 +16,7 @@ public class PawsomePetsApplicationAutoMapperProfile : Profile
 
         CreateMap<DogPet, DogPetDto>();
         CreateMap<DogPet, DogPetExcelDto>();
+
+        CreateMap<AppFileDescriptors.AppFileDescriptor, AppFileDescriptorDto>();
     }
 }

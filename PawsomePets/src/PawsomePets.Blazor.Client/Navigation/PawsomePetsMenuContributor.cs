@@ -95,7 +95,7 @@ public class PawsomePetsMenuContributor : IMenuContributor
                 PawsomePetsMenus.DogPets,
                 l["Menu:DogPets"],
                 url: "/dog-pets",
-                icon: "fa fa-file-alt",
+icon: "fa fa-file-alt",
                 requiredPermissionName: PawsomePetsPermissions.DogPets.Default)
         );
     }

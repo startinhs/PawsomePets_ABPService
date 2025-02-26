@@ -4,8 +4,9 @@ using System.Collections.Generic;
 
 namespace PawsomePets.DogPets
 {
-    public abstract class DogPetCreateDtoBase
+    public class DogPetCreateDto
     {
+        public Guid ImageId { get; set; }
         public string? Name { get; set; }
         public string? Breed { get; set; }
         public float Age { get; set; }

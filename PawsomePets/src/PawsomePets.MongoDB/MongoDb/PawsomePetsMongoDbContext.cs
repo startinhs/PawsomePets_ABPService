@@ -8,6 +8,7 @@ namespace PawsomePets.MongoDB;
 [ConnectionStringName("Default")]
 public class PawsomePetsMongoDbContext : AbpMongoDbContext
 {
+    public IMongoCollection<AppFileDescriptors.AppFileDescriptor> AppFileDescriptors => Collection<AppFileDescriptors.AppFileDescriptor>();
     public IMongoCollection<DogPet> DogPets => Collection<DogPet>();
 
     /* Add mongo collections here. Example:
@@ -24,5 +25,7 @@ public class PawsomePetsMongoDbContext : AbpMongoDbContext
         //});
 
         modelBuilder.Entity<DogPet>(b => { b.CollectionName = PawsomePetsConsts.DbTablePrefix + "DogPets"; });
+
+        modelBuilder.Entity<AppFileDescriptors.AppFileDescriptor>(b => { b.CollectionName = PawsomePetsConsts.DbTablePrefix + "AppFileDescriptors"; });
     }
 }

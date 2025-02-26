@@ -8,8 +8,11 @@ using PawsomePets.Shared;
 
 namespace PawsomePets.DogPets
 {
-    public partial interface IDogPetsAppService : IApplicationService
+    public interface IDogPetsAppService : IApplicationService
     {
+        Task<IRemoteStreamContent> GetFileAsync(GetFileInput input);
+
+        Task<AppFileDescriptorDto> UploadFileAsync(IRemoteStreamContent input);
 
         Task<PagedResultDto<DogPetDto>> GetListAsync(GetDogPetsInput input);
 

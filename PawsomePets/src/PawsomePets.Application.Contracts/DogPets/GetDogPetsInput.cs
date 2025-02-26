@@ -3,7 +3,7 @@ using System;
 
 namespace PawsomePets.DogPets
 {
-    public abstract class GetDogPetsInputBase : PagedAndSortedResultRequestDto
+    public class GetDogPetsInput : PagedAndSortedResultRequestDto
     {
 
         public string? FilterText { get; set; }
@@ -26,7 +26,7 @@ namespace PawsomePets.DogPets
         public bool? IsStock { get; set; }
         public string? OtherInformation { get; set; }
 
-        public GetDogPetsInputBase()
+        public GetDogPetsInput()
         {
 
         }

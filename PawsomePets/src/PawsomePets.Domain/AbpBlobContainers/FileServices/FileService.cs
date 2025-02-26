@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace nRetailApp.Services.FileService;
+namespace PawsomePets.Services.FileService;
 
 public class FileService : IFileService
 {

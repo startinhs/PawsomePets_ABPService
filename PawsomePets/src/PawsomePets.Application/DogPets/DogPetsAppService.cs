@@ -17,23 +17,27 @@ using Volo.Abp.Authorization;
 using Volo.Abp.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using PawsomePets.Shared;
+using Volo.Abp.BlobStoring;
 
 namespace PawsomePets.DogPets
 {
 
     [Authorize(PawsomePetsPermissions.DogPets.Default)]
-    public abstract class DogPetsAppServiceBase : PawsomePetsAppService
+    public class DogPetsAppService : PawsomePetsAppService, IDogPetsAppService
     {
         protected IDistributedCache<DogPetDownloadTokenCacheItem, string> _downloadTokenCache;
         protected IDogPetRepository _dogPetRepository;
         protected DogPetManager _dogPetManager;
+        protected IRepository<AppFileDescriptors.AppFileDescriptor, Guid> _appFileDescriptorRepository;
+        protected IBlobContainer<DogPetFileContainer> _blobContainer;
 
-        public DogPetsAppServiceBase(IDogPetRepository dogPetRepository, DogPetManager dogPetManager, IDistributedCache<DogPetDownloadTokenCacheItem, string> downloadTokenCache)
+        public DogPetsAppService(IDogPetRepository dogPetRepository, DogPetManager dogPetManager, IDistributedCache<DogPetDownloadTokenCacheItem, string> downloadTokenCache, IRepository<AppFileDescriptors.AppFileDescriptor, Guid> appFileDescriptorRepository, IBlobContainer<DogPetFileContainer> blobContainer)
         {
             _downloadTokenCache = downloadTokenCache;
             _dogPetRepository = dogPetRepository;
             _dogPetManager = dogPetManager;
-
+            _appFileDescriptorRepository = appFileDescriptorRepository;
+            _blobContainer = blobContainer;
         }
 
         public virtual async Task<PagedResultDto<DogPetDto>> GetListAsync(GetDogPetsInput input)
@@ -64,7 +68,7 @@ namespace PawsomePets.DogPets
         {
 
             var dogPet = await _dogPetManager.CreateAsync(
-            input.Age, input.Weight, input.Vaccinations, input.Price, input.PromotionPecents, input.IsStock, input.Name, input.Breed, input.Gender, input.Color, input.HealthStatus, input.OtherInformation
+            input.ImageId, input.Age, input.Weight, input.Vaccinations, input.Price, input.PromotionPecents, input.IsStock, input.Name, input.Breed, input.Gender, input.Color, input.HealthStatus, input.OtherInformation
             );
 
             return ObjectMapper.Map<DogPet, DogPetDto>(dogPet);
@@ -76,7 +80,7 @@ namespace PawsomePets.DogPets
 
             var dogPet = await _dogPetManager.UpdateAsync(
             id,
-            input.Age, input.Weight, input.Vaccinations, input.Price, input.PromotionPecents, input.IsStock, input.Name, input.Breed, input.Gender, input.Color, input.HealthStatus, input.OtherInformation, input.ConcurrencyStamp
+            input.ImageId, input.Age, input.Weight, input.Vaccinations, input.Price, input.PromotionPecents, input.IsStock, input.Name, input.Breed, input.Gender, input.Color, input.HealthStatus, input.OtherInformation, input.ConcurrencyStamp
             );
 
             return ObjectMapper.Map<DogPet, DogPetDto>(dogPet);
@@ -111,6 +115,32 @@ namespace PawsomePets.DogPets
         {
             await _dogPetRepository.DeleteAllAsync(input.FilterText, input.Name, input.Breed, input.AgeMin, input.AgeMax, input.Gender, input.Color, input.WeightMin, input.WeightMax, input.HealthStatus, input.VaccinationsMin, input.VaccinationsMax, input.PriceMin, input.PriceMax, input.PromotionPecentsMin, input.PromotionPecentsMax, input.IsStock, input.OtherInformation);
         }
+
+        [AllowAnonymous]
+        public virtual async Task<IRemoteStreamContent> GetFileAsync(GetFileInput input)
+        {
+            var downloadToken = await _downloadTokenCache.GetAsync(input.DownloadToken);
+            if (downloadToken == null || input.DownloadToken != downloadToken.Token)
+            {
+                throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
+            }
+
+            var fileDescriptor = await _appFileDescriptorRepository.GetAsync(input.FileId);
+            var stream = await _blobContainer.GetAsync(fileDescriptor.Id.ToString("N"));
+
+            return new RemoteStreamContent(stream, fileDescriptor.Name, fileDescriptor.MimeType);
+        }
+
+        public virtual async Task<AppFileDescriptorDto> UploadFileAsync(IRemoteStreamContent input)
+        {
+            var id = GuidGenerator.Create();
+            var fileDescriptor = await _appFileDescriptorRepository.InsertAsync(new AppFileDescriptors.AppFileDescriptor(id, input.FileName, input.ContentType));
+
+            await _blobContainer.SaveAsync(fileDescriptor.Id.ToString("N"), input.GetStream());
+
+            return ObjectMapper.Map<AppFileDescriptors.AppFileDescriptor, AppFileDescriptorDto>(fileDescriptor);
+        }
+
         public virtual async Task<PawsomePets.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
         {
             var token = Guid.NewGuid().ToString("N");

@@ -62,7 +62,7 @@ using Volo.Chat;
 using Volo.Saas.Host;
 using Volo.Saas.Host.Blazor;
 using Volo.Saas.Host.Blazor.Server;
-using nRetailApp.FileUploads.AbpBlobContainers;
+using PawsomePets.AbpBlobContainers;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.Aws;
 using Volo.Abp.BlobStoring.Azure;

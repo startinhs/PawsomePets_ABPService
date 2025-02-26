@@ -3,7 +3,7 @@ using System;
 
 namespace PawsomePets.DogPets
 {
-    public abstract class DogPetExcelDownloadDtoBase
+    public class DogPetExcelDownloadDto
     {
         public string DownloadToken { get; set; } = null!;
 
@@ -27,7 +27,7 @@ namespace PawsomePets.DogPets
         public bool? IsStock { get; set; }
         public string? OtherInformation { get; set; }
 
-        public DogPetExcelDownloadDtoBase()
+        public DogPetExcelDownloadDto()
         {
 
         }

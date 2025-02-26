@@ -2,7 +2,7 @@ namespace PawsomePets.DogPets
 {
     public static class DogPetConsts
     {
-        private const string DefaultSorting = "{0}Name asc";
+        private const string DefaultSorting = "{0}ImageId asc";
 
         public static string GetDefaultSorting(bool withEntityName)
         {

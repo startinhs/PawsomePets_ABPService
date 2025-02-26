@@ -6,7 +6,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace PawsomePets.DogPets
 {
-    public partial interface IDogPetRepository : IRepository<DogPet, int>
+    public interface IDogPetRepository : IRepository<DogPet, int>
     {
 
         Task DeleteAllAsync(

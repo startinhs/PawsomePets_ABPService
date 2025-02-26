@@ -12,9 +12,9 @@ using MongoDB.Driver;
 
 namespace PawsomePets.DogPets
 {
-    public abstract class MongoDogPetRepositoryBase : MongoDbRepository<PawsomePetsMongoDbContext, DogPet, int>
+    public class MongoDogPetRepository : MongoDbRepository<PawsomePetsMongoDbContext, DogPet, int>, IDogPetRepository
     {
-        public MongoDogPetRepositoryBase(IMongoDbContextProvider<PawsomePetsMongoDbContext> dbContextProvider)
+        public MongoDogPetRepository(IMongoDbContextProvider<PawsomePetsMongoDbContext> dbContextProvider)
             : base(dbContextProvider)
         {
         }

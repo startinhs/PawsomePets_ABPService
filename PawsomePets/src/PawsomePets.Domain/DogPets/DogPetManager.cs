@@ -10,22 +10,22 @@ using Volo.Abp.Data;
 
 namespace PawsomePets.DogPets
 {
-    public abstract class DogPetManagerBase : DomainService
+    public class DogPetManager : DomainService
     {
         protected IDogPetRepository _dogPetRepository;
 
-        public DogPetManagerBase(IDogPetRepository dogPetRepository)
+        public DogPetManager(IDogPetRepository dogPetRepository)
         {
             _dogPetRepository = dogPetRepository;
         }
 
         public virtual async Task<DogPet> CreateAsync(
-        float age, float weight, int vaccinations, decimal price, float promotionPecents, bool isStock, string? name = null, string? breed = null, string? gender = null, string? color = null, string? healthStatus = null, string? otherInformation = null)
+        Guid imageId, float age, float weight, int vaccinations, decimal price, float promotionPecents, bool isStock, string? name = null, string? breed = null, string? gender = null, string? color = null, string? healthStatus = null, string? otherInformation = null)
         {
 
             var dogPet = new DogPet(
 
-             age, weight, vaccinations, price, promotionPecents, isStock, name, breed, gender, color, healthStatus, otherInformation
+             imageId, age, weight, vaccinations, price, promotionPecents, isStock, name, breed, gender, color, healthStatus, otherInformation
              );
 
             return await _dogPetRepository.InsertAsync(dogPet);
@@ -33,12 +33,13 @@ namespace PawsomePets.DogPets
 
         public virtual async Task<DogPet> UpdateAsync(
             int id,
-            float age, float weight, int vaccinations, decimal price, float promotionPecents, bool isStock, string? name = null, string? breed = null, string? gender = null, string? color = null, string? healthStatus = null, string? otherInformation = null, [CanBeNull] string? concurrencyStamp = null
+            Guid imageId, float age, float weight, int vaccinations, decimal price, float promotionPecents, bool isStock, string? name = null, string? breed = null, string? gender = null, string? color = null, string? healthStatus = null, string? otherInformation = null, [CanBeNull] string? concurrencyStamp = null
         )
         {
 
             var dogPet = await _dogPetRepository.GetAsync(id);
 
+            dogPet.ImageId = imageId;
             dogPet.Age = age;
             dogPet.Weight = weight;
             dogPet.Vaccinations = vaccinations;

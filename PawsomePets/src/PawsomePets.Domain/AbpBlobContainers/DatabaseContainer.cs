@@ -1,6 +1,6 @@
 ﻿using Volo.Abp.BlobStoring;
 
-namespace nRetailApp.FileUploads.AbpBlobContainers
+namespace PawsomePets.AbpBlobContainers
 {
     [BlobContainerName("upload-image")]
     public class DatabaseContainer

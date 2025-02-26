@@ -26,10 +26,10 @@ namespace PawsomePets.Blazor.Client.Pages
 {
     public partial class DogPets
     {
-        
-        
+        [Inject]
+        protected IJSRuntime JsRuntime { get; set; }
             
-        
+        private IJSObjectReference? _jsObjectRef;
             
         protected List<Volo.Abp.BlazoriseUI.BreadcrumbItem> BreadcrumbItems = new List<Volo.Abp.BlazoriseUI.BreadcrumbItem>();
         protected PageToolbar Toolbar {get;} = new PageToolbar();
@@ -87,7 +87,7 @@ namespace PawsomePets.Blazor.Client.Pages
         {
             if (firstRender)
             {
-                
+                _jsObjectRef = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "/Pages/DogPets.razor.js");
                 await SetBreadcrumbItemsAsync();
                 await SetToolbarItemsAsync();
                 await InvokeAsync(StateHasChanged);
@@ -177,7 +177,7 @@ namespace PawsomePets.Blazor.Client.Pages
 
             SelectedCreateTab = "dogPet-create-tab";
             
-            
+            await _jsObjectRef!.InvokeVoidAsync("FileCleanup.clearInputFiles");
             await NewDogPetValidations.ClearAll();
             await CreateDogPetModal.Show();
         }
@@ -195,12 +195,13 @@ namespace PawsomePets.Blazor.Client.Pages
         {
             SelectedEditTab = "dogPet-edit-tab";
             
-            
+            await _jsObjectRef!.InvokeVoidAsync("FileCleanup.clearInputFiles");
             var dogPet = await DogPetsAppService.GetAsync(input.Id);
             
             EditingDogPetId = dogPet.Id;
             EditingDogPet = ObjectMapper.Map<DogPetDto, DogPetUpdateDto>(dogPet);
-            
+            HasSelectedDogPetImage = EditingDogPet.ImageId != null && EditingDogPet.ImageId != Guid.Empty;
+
             await EditingDogPetValidations.ClearAll();
             await EditDogPetModal.Show();
         }
@@ -265,12 +266,87 @@ namespace PawsomePets.Blazor.Client.Pages
         }
 
 
+        private bool IsCreateFormDisabled()
+        {
+            return OnNewDogPetImageLoading ||NewDogPet.ImageId == Guid.Empty ;
+        }
+        
+        private bool IsEditFormDisabled()
+        {
+            return OnEditDogPetImageLoading ||EditingDogPet.ImageId == Guid.Empty ;
+        }
+
+
+
+        private int MaxDogPetImageFileUploadSize = 1024 * 1024 * 10; //10MB
+        private bool OnNewDogPetImageLoading = false;
+        private async Task OnNewDogPetImageChanged(InputFileChangeEventArgs e)
+        {
+            try
+            {
+                if (e.FileCount is 0 or > 1 || e.File.Size > MaxDogPetImageFileUploadSize)
+                {
+                    throw new UserFriendlyException(L["UploadFailedMessage"]);
+                }
+    
+                OnNewDogPetImageLoading = true;
+                
+                var result = await UploadFileAsync(e.File!);
+    
+                NewDogPet.ImageId = result.Id;
+                OnNewDogPetImageLoading = false;            
+            }
+            catch(Exception ex)
+            {
+                await HandleErrorAsync(ex);
+            }
+        }
+        private bool HasSelectedDogPetImage = false;
+        private bool OnEditDogPetImageLoading = false;
+        private async Task OnEditDogPetImageChanged(InputFileChangeEventArgs e)
+        {
+            try
+            {
+                if (e.FileCount is 0 or > 1 || e.File.Size > MaxDogPetImageFileUploadSize)
+                {
+                    throw new UserFriendlyException(L["UploadFailedMessage"]);
+                }
+    
+                OnEditDogPetImageLoading = true;
+                
+                var result = await UploadFileAsync(e.File!);
+    
+                EditingDogPet.ImageId = result.Id;
+                OnEditDogPetImageLoading = false;            
+            }
+            catch(Exception ex)
+            {
+                await HandleErrorAsync(ex);
+            }            
+        }
 
 
 
 
+        private async Task<AppFileDescriptorDto> UploadFileAsync(IBrowserFile file)
+        {
+            using (var ms = new MemoryStream())
+            {
+                await file.OpenReadStream(long.MaxValue).CopyToAsync(ms);
+                ms.Seek(0, SeekOrigin.Begin);
+                
+                return await DogPetsAppService.UploadFileAsync(new RemoteStreamContent(ms, file.Name, file.ContentType));
+            }
+        }
 
 
+
+        private async Task DownloadFileAsync(Guid fileId)
+        {
+            var token = (await DogPetsAppService.GetDownloadTokenAsync()).Token;
+            var remoteService = await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("PawsomePets") ?? await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/dog-pets/file?DownloadToken={token}&FileId={fileId}", forceLoad: true);
+        }
 
         protected virtual async Task OnNameChangedAsync(string? name)
         {

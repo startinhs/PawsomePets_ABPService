@@ -89,6 +89,9 @@
     "MaxFileSizeLimit": "Max file size: {0}mb",
     "Filters": "Filters",
     "Menu:DogPets": "Dog Pets",
-    "Menu:PawsomePets": "Pawsome Pets"
+    "Menu:PawsomePets": "Pawsome Pets",
+    "Image": "Image",
+    "MinImage": "Min Image",
+    "MaxImage": "Max Image"
   }
 }

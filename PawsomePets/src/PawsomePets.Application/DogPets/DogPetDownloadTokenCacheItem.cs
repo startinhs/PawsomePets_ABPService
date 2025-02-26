@@ -2,7 +2,8 @@ using System;
 
 namespace PawsomePets.DogPets;
 
-public abstract class DogPetDownloadTokenCacheItemBase
+[Serializable]
+public class DogPetDownloadTokenCacheItem
 {
     public string Token { get; set; } = null!;
 }

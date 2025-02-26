@@ -41,8 +41,7 @@
 @* ************************* SEARCH ************************* *@
 <Card>
     <CardBody>
-@*//<suite-custom-code-block-1>*@
-@*//</suite-custom-code-block-1>*@
+
         <Row>
             <div class="col-md-8 col-lg-10">
                 <div class="mb-3">
@@ -206,19 +205,16 @@
                     </Field>
                 </Column>
             </Row>
-@*//<suite-custom-code-block-2>*@
-@*//</suite-custom-code-block-2>*@
         </div>
-
-        <!-- Add Image Search Button -->
-        <div class="col-md-4 col-lg-2">
-            <div class="mb-3">
-                <Button Color="Color.Primary" Outline Style="width:100%" id="ImageSearchButton"
-                        @onclick="ShowImageSearchModal">@L["Image Search"]
-                    <i aria-hidden="true" class="fa ms-1 fa-image"></i>
-                </Button>
+            <!-- Add Image Search Button -->
+            <div class="col-md-4 col-lg-2">
+                <div class="mb-3">
+                    <Button Color="Color.Primary" Outline Style="width:100%" id="ImageSearchButton"
+                            @onclick="ShowImageSearchModal">@L["Image Search"]
+                        <i aria-hidden="true" class="fa ms-1 fa-image"></i>
+                    </Button>
+                </div>
             </div>
-        </div>
 
         </Row>
         <!-- Modal for Image Search -->
@@ -244,7 +240,6 @@
                             📷 Open camera
                         </button>
                     </div>
-
                     <!-- Prediction Result Area -->
                     <div style="text-align: center; flex: 1;">
                         <button @onclick="Predict"
@@ -445,8 +440,6 @@
 
         </script>
 
-@*//<suite-custom-code-block-3>*@
-@*//</suite-custom-code-block-3>*@
     </CardBody>
 </Card>
 
@@ -546,12 +539,26 @@
                                           Clicked="() => DeleteDogPetAsync(context)"
                                           ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
                                           Text="@L["Delete"]"></EntityAction>
-@*//<suite-custom-code-block-4>*@
-@*//</suite-custom-code-block-4>*@
+
                         </EntityActions>
                     </DisplayTemplate>
                 </DataGridEntityActionsColumn>
                
+              <DataGridColumn TItem="DogPetDto"
+                      Field="ImageId"
+                      Caption="@L["Image"]">
+                      <DisplayTemplate>
+                        @if (context.ImageId != null && context.ImageId != Guid.Empty)
+                        {   
+                            <Icon Name="IconName.FileAlt" Clicked="async () => await DownloadFileAsync(context.ImageId)" />
+                        }
+                        else
+                        {
+                            <span>"-"</span>
+                        }
+                      </DisplayTemplate>
+              </DataGridColumn>
+
               <DataGridColumn TItem="DogPetDto"
                       Field="Name"
                       Caption="@L["Name"]">
@@ -633,8 +640,7 @@
 @* ************************* CREATE MODAL ************************* *@
 <Modal @ref="CreateDogPetModal" Closing="@CreateDogPetModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-@*//<suite-custom-code-block-5>*@
-@*//</suite-custom-code-block-5>*@
+
         <Form id="CreateDogPetForm">
             <ModalHeader>
                 <ModalTitle>@L["NewDogPet"]</ModalTitle>
@@ -647,6 +653,17 @@
                             ValidateOnLoad="false">
                     
                     
+                        <Field>
+                            <FieldLabel>@L["Image"] *</FieldLabel>
+                            <InputFile class="form-control file-input" OnChange="@OnNewDogPetImageChanged" required/>
+                            @if (OnNewDogPetImageLoading)
+                            {
+                                <p>@L["FileUploading"]</p>
+                            }
+                            <p class="text-muted pt-1"><i class="fa fa-info-circle"></i> @L["MaxFileSizeLimit", 10]</p>
+                        </Field>
+
+
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>@L["Name"]</FieldLabel>
@@ -792,21 +809,18 @@
                         Clicked="CloseCreateDogPetModalAsync">
                     @L["Cancel"]
                 </Button>
-                <SubmitButton Form="CreateDogPetForm" Clicked="CreateDogPetAsync"/>
-@*//<suite-custom-code-block-6>*@
-@*//</suite-custom-code-block-6>*@
+                <SubmitButton Form="CreateDogPetForm" Clicked="CreateDogPetAsync" Disabled="@IsCreateFormDisabled()"/>
+
             </ModalFooter>
         </Form>
-@*//<suite-custom-code-block-7>*@
-@*//</suite-custom-code-block-7>*@
+
     </ModalContent>
 </Modal>
 
 @* ************************* EDIT MODAL ************************* *@
 <Modal @ref="EditDogPetModal" Closing="@EditDogPetModal.CancelClosingModalWhenFocusLost">
     <ModalContent Centered="true">
-@*//<suite-custom-code-block-8>*@
-@*//</suite-custom-code-block-8>*@
+
         <Form id="EditDogPetForm">
             <ModalHeader>
                 <ModalTitle>@L["Update"]</ModalTitle>
@@ -819,6 +833,30 @@
                             ValidateOnLoad="false">
                     
                     
+                    <Field>
+                        <FieldLabel>@L["Image"] *</FieldLabel>
+                        @if (HasSelectedDogPetImage)
+                        {
+                            <div class="mb-2">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="@L["DownloadSelectedFile"].Value" @onclick="@(async () => await DownloadFileAsync(EditingDogPet.ImageId))"><i class="fa fa-file-alt"></i></button>
+                                    <button type="button" class="btn btn-primary btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="@L["RemoveSelectedFile"].Value" @onclick="(() => { EditingDogPet.ImageId = Guid.Empty; HasSelectedDogPetImage = false; })"><i class="fa fa-trash"></i></button>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <Field>
+                                <InputFile class="form-control file-input" OnChange="@OnEditDogPetImageChanged" required/>
+                                @if (OnEditDogPetImageLoading)
+                                {
+                                    <p>@L["FileUploading"]</p>
+                                }
+                                <p class="text-muted pt-1"><i class="fa fa-info-circle"></i> @L["MaxFileSizeLimit", 10]</p>
+                            </Field>
+                        }
+                    </Field>
+
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
                             <FieldLabel>@L["Name"]</FieldLabel>
@@ -964,13 +1002,11 @@
                         Clicked="CloseEditDogPetModalAsync">
                     @L["Cancel"]
                 </Button>
-                <SubmitButton Form="EditDogPetForm" Clicked="UpdateDogPetAsync" />
-@*//<suite-custom-code-block-9>*@
-@*//</suite-custom-code-block-9>*@
+                <SubmitButton Form="EditDogPetForm" Clicked="UpdateDogPetAsync" Disabled="@IsEditFormDisabled()" />
+
             </ModalFooter>
         </Form>
-@*//<suite-custom-code-block-10>*@
-@*//</suite-custom-code-block-10>*@
+
     </ModalContent>
 </Modal>
 

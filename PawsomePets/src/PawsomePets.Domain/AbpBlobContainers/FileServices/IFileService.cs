@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace nRetailApp.Services.FileService;
+namespace PawsomePets.Services.FileService;
 
 public interface IFileService
 {
