@@ -224,36 +224,42 @@
             <div class="modal-content">
                 <span class="close" @onclick="CloseModal">&times;</span>
                 <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+
                     <!-- Image Upload Area -->
-                    <div style="text-align: center; flex: 1;">
-                        <h3>Tải ảnh lên</h3>
+                    <div style="text-align: center; flex: 1; margin-right: 30px; min-height: 200px;">
+                        <h3>Upload Image</h3>
                         <InputFile OnChange="UploadImage" accept="image/*" />
                         <br />
-                        <img src="@ImagePreview" alt="Uploaded Image" style="max-width: 100%; margin-top: 10px; border-radius: 10px; border: 2px solid #ccc; padding: 5px;" />
+                        <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;
+                            border: 2px solid #ccc; border-radius: 10px; padding: 5px; margin-top: 10px;">
+                            <img src="@ImagePreview" alt="Uploaded Image"
+                                 style="max-width: 100px; max-height: 100px; object-fit: cover;" />
+                        </div>
                     </div>
+
                     <!-- Webcam Area -->
                     <div style="text-align: center; flex: 1;">
                         <button @onclick="ShowWebcamPopup"
                                 style="display: flex; align-items: center; justify-content: center;
-                   background-color: indianred; color: white; padding: 12px 30px;
-                   border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
-                   cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                   min-height: 50px; margin-right: 20px;">
+                               background-color: indianred; color: white; padding: 12px 30px;
+                               border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+                               cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                               min-height: 50px; margin-right: 20px;">
                             📷 Open camera
                         </button>
                     </div>
+
                     <!-- Prediction Result Area -->
                     <div style="text-align: center; flex: 1;">
                         <button @onclick="Predict"
                                 style="display: flex; align-items: center; justify-content: center;
-                   background-color: #2563eb; color: white; padding: 12px 25px;
-                   border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
-                   cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                   min-height: 50px;">
+                               background-color: #2563eb; color: white; padding: 12px 25px;
+                               border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+                               cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                               min-height: 50px;">
                             🔍 Search
                         </button>
-
-                        <div><br />@PredictionResult</div>
+                        <div style="min-height: 40px; margin-top: 10px;">@PredictionResult</div>
                     </div>
 
                 </div>
@@ -265,7 +271,7 @@
                         <div class="camera-container">
                             <video id="video" width="320" height="240" autoplay></video>
                             <br />
-                            <button @onclick="CaptureImage" style="color: red;">Chụp ảnh</button>
+                            <button @onclick="CaptureImage" style="color: red;">Take a photo</button>
                             <br />
                             <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
                         </div>
@@ -273,6 +279,7 @@
                 </div>
             </div>
         </div>
+
 
         @code {
         private string ImagePreview;
