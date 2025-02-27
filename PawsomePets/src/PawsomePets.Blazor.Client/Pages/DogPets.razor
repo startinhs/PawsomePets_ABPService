@@ -3,6 +3,7 @@
 @page "/dog-pets"
 
 @attribute [Authorize(PawsomePetsPermissions.DogPets.Default)]
+@using Microsoft.Extensions.Configuration
 @using PawsomePets.DogPets
 @using PawsomePets.Localization
 @using PawsomePets.Shared
@@ -32,6 +33,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 @inject IJSRuntime JS
+@inject IConfiguration Configuration
 
 @* ************************* PAGE HEADER ************************* *@
 <PageHeader Title="@L["DogPets"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
@@ -543,21 +545,28 @@
                         </EntityActions>
                     </DisplayTemplate>
                 </DataGridEntityActionsColumn>
-               
-              <DataGridColumn TItem="DogPetDto"
-                      Field="ImageId"
-                      Caption="@L["Image"]">
-                      <DisplayTemplate>
+
+                <DataGridColumn TItem="DogPetDto"
+                                Field="ImageId"
+                                Caption="@L["Image"]">
+                    <DisplayTemplate>
                         @if (context.ImageId != null && context.ImageId != Guid.Empty)
-                        {   
-                            <Icon Name="IconName.FileAlt" Clicked="async () => await DownloadFileAsync(context.ImageId)" />
+                        {
+                            <div style="display: flex; align-items: center; gap: 10px; margin-right: 10px;">
+                                <img src="@($"{Configuration["ApiBaseUrl"]}/api/app/dog-pets/image?ImageId={context.ImageId}")"
+                                     alt="Dog Image"
+                                     style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover;" />
+
+                                <Icon Name="IconName.Download" Clicked="async () => await DownloadFileAsync(context.ImageId)" />
+                            </div>
                         }
                         else
                         {
-                            <span>"-"</span>
+                            <span style="margin-right: 10px;">-</span>
                         }
-                      </DisplayTemplate>
-              </DataGridColumn>
+                    </DisplayTemplate>
+                </DataGridColumn>
+
 
               <DataGridColumn TItem="DogPetDto"
                       Field="Name"
@@ -651,17 +660,29 @@
                             Mode="ValidationMode.Auto"
                             Model="@NewDogPet"
                             ValidateOnLoad="false">
-                    
-                    
-                        <Field>
-                            <FieldLabel>@L["Image"] *</FieldLabel>
-                            <InputFile class="form-control file-input" OnChange="@OnNewDogPetImageChanged" required/>
-                            @if (OnNewDogPetImageLoading)
-                            {
-                                <p>@L["FileUploading"]</p>
-                            }
-                            <p class="text-muted pt-1"><i class="fa fa-info-circle"></i> @L["MaxFileSizeLimit", 10]</p>
-                        </Field>
+
+
+                    <Field>
+                        <FieldLabel>@L["Image"] *</FieldLabel>
+                        <InputFile class="form-control file-input" OnChange="@OnNewDogPetImageChanged" required />
+
+                        @if (OnNewDogPetImageLoading)
+                        {
+                            <p>@L["FileUploading"]</p>
+                        }
+
+                        @if (!string.IsNullOrEmpty(NewDogPet.ImageId.ToString()) && NewDogPet.ImageId != Guid.Empty)
+                        {
+                            <img src="@($"{Configuration["ApiBaseUrl"]}/api/app/dog-pets/image?ImageId={NewDogPet.ImageId}")"
+                                 alt="Preview"
+                                 style="width: 100px; height: 100px; object-fit: cover; margin-top: 10px; border-radius: 5px;" />
+                        }
+
+                        <p class="text-muted pt-1">
+                            <i class="fa fa-info-circle"></i> @L["MaxFileSizeLimit", 10]
+                        </p>
+                    </Field>
+
 
 
                     <Validation MessageLocalizer="@LH.Localize">
@@ -835,27 +856,49 @@
                     
                     <Field>
                         <FieldLabel>@L["Image"] *</FieldLabel>
-                        @if (HasSelectedDogPetImage)
+
+                        @if (HasSelectedDogPetImage && EditingDogPet.ImageId != Guid.Empty)
                         {
                             <div class="mb-2">
+                                <img src="@($"{Configuration["ApiBaseUrl"]}/api/app/dog-pets/image?ImageId={EditingDogPet.ImageId}")"
+                                     alt="Dog Image"
+                                     style="width: 100px; height: 100px; object-fit: cover; margin-bottom: 10px; border-radius: 5px;" />
+
                                 <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="@L["DownloadSelectedFile"].Value" @onclick="@(async () => await DownloadFileAsync(EditingDogPet.ImageId))"><i class="fa fa-file-alt"></i></button>
-                                    <button type="button" class="btn btn-primary btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="@L["RemoveSelectedFile"].Value" @onclick="(() => { EditingDogPet.ImageId = Guid.Empty; HasSelectedDogPetImage = false; })"><i class="fa fa-trash"></i></button>
+                                    <button type="button" class="btn btn-primary"
+                                            data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="@L["DownloadSelectedFile"].Value"
+                                            @onclick="async () => await DownloadFileAsync(EditingDogPet.ImageId)">
+                                        <i class="fa fa-download"></i>
+                                    </button>
+
+                                    <button type="button" class="btn btn-danger"
+                                            data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="@L["RemoveSelectedFile"].Value"
+                                            @onclick="(() => { EditingDogPet.ImageId = Guid.Empty; })">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
                         }
                         else
                         {
                             <Field>
-                                <InputFile class="form-control file-input" OnChange="@OnEditDogPetImageChanged" required/>
+                                <InputFile class="form-control file-input" OnChange="@OnEditDogPetImageChanged" required />
+
                                 @if (OnEditDogPetImageLoading)
                                 {
                                     <p>@L["FileUploading"]</p>
                                 }
-                                <p class="text-muted pt-1"><i class="fa fa-info-circle"></i> @L["MaxFileSizeLimit", 10]</p>
+
+                                <p class="text-muted pt-1">
+                                    <i class="fa fa-info-circle"></i> @L["MaxFileSizeLimit", 10]
+                                </p>
                             </Field>
                         }
                     </Field>
+
+
 
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
