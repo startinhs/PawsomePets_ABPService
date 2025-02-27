@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -18,6 +18,7 @@ using Volo.Abp.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using PawsomePets.Shared;
 using Volo.Abp.BlobStoring;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PawsomePets.DogPets
 {
@@ -129,6 +130,25 @@ namespace PawsomePets.DogPets
             var stream = await _blobContainer.GetAsync(fileDescriptor.Id.ToString("N"));
 
             return new RemoteStreamContent(stream, fileDescriptor.Name, fileDescriptor.MimeType);
+        }
+
+        [AllowAnonymous]
+        public virtual async Task<object> GetImageAsync(GetImageInput input)
+        {
+            var fileDescriptor = await _appFileDescriptorRepository.GetAsync(input.ImageId);
+            var stream = await _blobContainer.GetAsync(fileDescriptor.Id.ToString("N"));
+
+            if (stream == null)
+            {
+                return "Image not found.";
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await stream.CopyToAsync(memoryStream);
+                var fileBytes = memoryStream.ToArray();
+                return new FileContentResult(fileBytes, fileDescriptor.MimeType);
+            }
         }
 
         public virtual async Task<AppFileDescriptorDto> UploadFileAsync(IRemoteStreamContent input)

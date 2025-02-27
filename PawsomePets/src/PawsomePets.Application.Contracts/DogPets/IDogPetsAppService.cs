@@ -12,6 +12,8 @@ namespace PawsomePets.DogPets
     {
         Task<IRemoteStreamContent> GetFileAsync(GetFileInput input);
 
+        Task<object> GetImageAsync(GetImageInput input);
+
         Task<AppFileDescriptorDto> UploadFileAsync(IRemoteStreamContent input);
 
         Task<PagedResultDto<DogPetDto>> GetListAsync(GetDogPetsInput input);
