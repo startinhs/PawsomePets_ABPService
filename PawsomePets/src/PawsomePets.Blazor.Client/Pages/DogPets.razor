@@ -226,42 +226,42 @@
                 <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
 
                     <!-- Image Upload Area -->
-                    <div style="text-align: center; flex: 1; margin-right: 30px; min-height: 200px;">
-                        <h3>Upload Image</h3>
-                        <InputFile OnChange="UploadImage" accept="image/*" />
+                    <div style="text-align: center;">
                         <br />
-                        <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;
-                            border: 2px solid #ccc; border-radius: 10px; padding: 5px; margin-top: 10px;">
-                            <img src="@ImagePreview" alt="Uploaded Image"
-                                 style="max-width: 100px; max-height: 100px; object-fit: cover;" />
+                        <h4>Upload Image</h4>
+                        <br />
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <InputFile OnChange="UploadImage" accept="image/*" />
+                            <br />
+                            <div style="width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;
+                                border: 2px solid #ccc; border-radius: 10px; padding: 5px; margin-top: 10px;">
+                                <img src="@ImagePreview" alt="Uploaded Image"
+                                     style="max-width: 100px; max-height: 100px; object-fit: cover;" />
+                            </div>
                         </div>
-                    </div>
+                        <br />
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                            <button @onclick="ShowWebcamPopup"
+                                    style="display: flex; align-items: center; justify-content: center;
+                                       background-color: indianred; color: white; padding: 12px 30px;
+                                       border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+                                       cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                                       min-height: 50px;">
+                                📷 Camera
+                            </button>
 
-                    <!-- Webcam Area -->
-                    <div style="text-align: center; flex: 1;">
-                        <button @onclick="ShowWebcamPopup"
-                                style="display: flex; align-items: center; justify-content: center;
-                               background-color: indianred; color: white; padding: 12px 30px;
-                               border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
-                               cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                               min-height: 50px; margin-right: 20px;">
-                            📷 Open camera
-                        </button>
+                            <button @onclick="Predict"
+                                    style="display: flex; align-items: center; justify-content: center;
+                                       background-color: #2563eb; color: white; padding: 12px 25px;
+                                       border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+                                       cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                                       min-height: 50px;">
+                                🔍 Searchㅤ
+                            </button>
+                        </div>
+                        <br />
+                        <div style="min-height: 40px; margin-top: 10px;">Result: "@PredictionResult"</div>
                     </div>
-
-                    <!-- Prediction Result Area -->
-                    <div style="text-align: center; flex: 1;">
-                        <button @onclick="Predict"
-                                style="display: flex; align-items: center; justify-content: center;
-                               background-color: #2563eb; color: white; padding: 12px 25px;
-                               border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
-                               cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                               min-height: 50px;">
-                            🔍 Search
-                        </button>
-                        <div style="min-height: 40px; margin-top: 10px;">@PredictionResult</div>
-                    </div>
-
                 </div>
 
                 <!-- Webcam Popup -->
@@ -303,7 +303,7 @@
         {
             if (ImageData == null)
             {
-            PredictionResult = "Vui lòng tải ảnh lên hoặc chụp ảnh.";
+                PredictionResult = "Please upload a photo or take a photo.";
             return;
             }
 
@@ -322,21 +322,21 @@
 
                 if (root.TryGetProperty("breed_name", out JsonElement breedNameElement))
                 {
-                    PredictionResult = breedNameElement.GetString()?.Trim() ?? "Không xác định";
+                    PredictionResult = breedNameElement.GetString()?.Trim() ?? "Unknown";
                 }
                 else
                 {
-                    PredictionResult = "Không xác định";
+                    PredictionResult = "Unknown";
                 }
             }
             else
             {
-                PredictionResult = "Lỗi API";
+                PredictionResult = "API error";
             }
             }
             catch (Exception ex)
             {
-            PredictionResult = "Lỗi hệ thống";
+            PredictionResult = "System error";
             }
 
             Filter.FilterText = PredictionResult;
@@ -424,7 +424,7 @@
                         video.srcObject = stream;
                     })
                     .catch((err) => {
-                        console.error("Lỗi truy cập webcam:", err);
+                            console.error("Webcam access error:", err);
                     });
             }
 
