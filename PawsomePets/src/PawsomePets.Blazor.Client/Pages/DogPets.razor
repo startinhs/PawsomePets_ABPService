@@ -270,11 +270,19 @@
                         <span class="close" @onclick="CloseWebcamPopup">&times;</span>
                         <div class="camera-container">
                             <video id="video" width="320" height="240" autoplay></video>
-                            <br />
-                            <button @onclick="CaptureImage" style="color: red;">Take a photo</button>
-                            <br />
-                            <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+                            <canvas id="canvas" width="240" height="240" style="display:none;"></canvas>
                         </div>
+                        <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
+                            <button @onclick="CaptureImage"
+                                    style="display: flex; align-items: center; justify-content: center;
+                                       background-color: #2563eb; color: white; padding: 12px 25px;
+                                       border: none; border-radius: 8px; font-size: 16px; font-weight: bold;
+                                       cursor: pointer; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                                       min-height: 50px;">
+                                Take a photo
+                            </button>
+                        </div>
+                        <br />
                     </div>
                 </div>
             </div>
@@ -408,8 +416,8 @@
             .camera-container {
                 border-radius: 15px;
                 border: 3px solid #ccc;
-                padding: 10px;
-                background-color: #f9f9f9;
+                padding: 20px;
+                background-color: blue;
                 display: inline-block;
             }
 
