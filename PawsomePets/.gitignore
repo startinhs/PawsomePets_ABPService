@@ -265,6 +265,7 @@ src/PawsomePets.HttpApi.HostWithIds/Logs/*
 src/PawsomePets.DbMigrator/Logs/*
 src/PawsomePets.Blazor.Server/Logs/*
 src/PawsomePets.Blazor.Server.Tiered/Logs/*
+src/PawsomePets.Blazor/Logs/*
 
 # Use abp install-libs to restore.
 **/wwwroot/libs/*
