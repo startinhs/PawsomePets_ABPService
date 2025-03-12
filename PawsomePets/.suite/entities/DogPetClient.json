@@ -1,16 +1,16 @@
 {
-  "Id": "292c86c0-f75e-409c-8cd9-799d2fb29444",
+  "Id": "292c86c0-f75e-409c-8cd9-799d2fb29445",
   "Name": "DogPetClient",
   "OriginalName": "DogPetClient",
   "NamePlural": "DogPetsClient",
   "DatabaseTableName": "DogPets",
-  "Namespace": "DogPets",
+  "Namespace": "DogPetsClient",
   "Type": 1,
   "MasterEntityName": null,
   "MasterEntity": null,
   "BaseClass": "Entity",
-  "PageTitle": "DogPets",
-  "MenuIcon": "file-alt",
+  "PageTitle": "DogPetsClient",
+  "MenuIcon": "dog",
   "PrimaryKeyType": "int",
   "PreserveCustomCode": false,
   "IsMultiTenant": false,
@@ -404,5 +404,5 @@
   "NavigationProperties": [],
   "NavigationConnections": [],
   "ChildEntities": [],
-  "PhysicalFileName": "DogPet.json"
+  "PhysicalFileName": "DogPetClient.json"
 }

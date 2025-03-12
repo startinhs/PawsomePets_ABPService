@@ -1,3 +1,4 @@
+using PawsomePets.DogPetsClient;
 using PawsomePets.DogPets;
 using Volo.Abp.Data;
 using Volo.Abp.MongoDB;
@@ -8,6 +9,7 @@ namespace PawsomePets.MongoDB;
 [ConnectionStringName("Default")]
 public class PawsomePetsMongoDbContext : AbpMongoDbContext
 {
+    public IMongoCollection<DogPetClient> DogPetsClient => Collection<DogPetClient>();
     public IMongoCollection<AppFileDescriptors.AppFileDescriptor> AppFileDescriptors => Collection<AppFileDescriptors.AppFileDescriptor>();
     public IMongoCollection<DogPet> DogPets => Collection<DogPet>();
 
@@ -27,5 +29,7 @@ public class PawsomePetsMongoDbContext : AbpMongoDbContext
         modelBuilder.Entity<DogPet>(b => { b.CollectionName = PawsomePetsConsts.DbTablePrefix + "DogPets"; });
 
         modelBuilder.Entity<AppFileDescriptors.AppFileDescriptor>(b => { b.CollectionName = PawsomePetsConsts.DbTablePrefix + "AppFileDescriptors"; });
+
+        modelBuilder.Entity<DogPetClient>(b => { b.CollectionName = PawsomePetsConsts.DbTablePrefix + "DogPets"; });
     }
 }

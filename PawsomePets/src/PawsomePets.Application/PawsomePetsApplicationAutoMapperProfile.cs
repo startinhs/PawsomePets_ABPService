@@ -1,3 +1,4 @@
+using PawsomePets.DogPetsClient;
 using System;
 using PawsomePets.Shared;
 using Volo.Abp.AutoMapper;
@@ -18,5 +19,8 @@ public class PawsomePetsApplicationAutoMapperProfile : Profile
         CreateMap<DogPet, DogPetExcelDto>();
 
         CreateMap<AppFileDescriptors.AppFileDescriptor, AppFileDescriptorDto>();
+
+        CreateMap<DogPetClient, DogPetClientDto>();
+        CreateMap<DogPetClient, DogPetClientExcelDto>();
     }
 }

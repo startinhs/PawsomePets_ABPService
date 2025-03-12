@@ -10,4 +10,6 @@ public class PawsomePetsMenus
 
     public const string DogPets = Prefix + ".DogPets";
 
+    public const string DogPetsClient = Prefix + ".DogPetsClient";
+
 }

@@ -21,4 +21,12 @@ public static class PawsomePetsPermissions
         public const string Create = Default + ".Create";
         public const string Delete = Default + ".Delete";
     }
+
+    public static class DogPetsClient
+    {
+        public const string Default = GroupName + ".DogPetsClient";
+        public const string Edit = Default + ".Edit";
+        public const string Create = Default + ".Create";
+        public const string Delete = Default + ".Delete";
+    }
 }

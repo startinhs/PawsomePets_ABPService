@@ -1,3 +1,4 @@
+using PawsomePets.DogPetsClient;
 using PawsomePets.DogPets;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.BackgroundJobs.MongoDB;
@@ -38,6 +39,8 @@ public class PawsomePetsMongoDbModule : AbpModule
         {
             options.AddDefaultRepositories();
             options.AddRepository<DogPet, DogPets.MongoDogPetRepository>();
+
+            options.AddRepository<DogPetClient, DogPetsClient.MongoDogPetClientRepository>();
 
         });
 

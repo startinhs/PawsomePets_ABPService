@@ -1,666 +1,780 @@
+
+
 @page "/dog-pets-client"
 
-@using Microsoft.Extensions.Configuration
-@using PawsomePets.DogPets
+@attribute [Authorize(PawsomePetsPermissions.DogPetsClient.Default)]
+@using PawsomePets.DogPetsClient
 @using PawsomePets.Localization
 @using PawsomePets.Shared
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
 @using Microsoft.AspNetCore.Components.Web
 @using Blazorise
 @using Blazorise.Components
-@using System.Text.Json
+@using Blazorise.DataGrid
 @using Volo.Abp.BlazoriseUI
 @using Volo.Abp.BlazoriseUI.Components
 @using Volo.Abp.ObjectMapping
 @using Volo.Abp.AspNetCore.Components.Messages
 @using Volo.Abp.AspNetCore.Components.Web.Theming.Layout
+
+@using PawsomePets.Permissions
 @using Volo.Abp.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components
 @using Volo.Abp.Http.Client
 @inherits PawsomePetsComponentBase
-@inject IDogPetsAppService DogPetsAppService
+@inject IDogPetsClientAppService DogPetsClientAppService
+
 @inject IUiMessageService UiMessageService
 @inject AbpBlazorMessageLocalizerHelper<PawsomePetsResource> LH
 @inject IRemoteServiceConfigurationProvider RemoteServiceConfigurationProvider
 @inject NavigationManager NavigationManager
-@inject HttpClient Http
-@inject IJSRuntime JS
-@inject IConfiguration Configuration
 
-<style>
-    .pet-card {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        overflow: hidden;
-        transition: transform 0.3s;
-        height: 100%;
-        background: white;
-    }
+@* ************************* PAGE HEADER ************************* *@
+<PageHeader Title="@L["DogPetsClient"]" BreadcrumbItems="BreadcrumbItems" Toolbar="Toolbar">
 
-    .pet-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
+</PageHeader>
 
-    .pet-image {
-        width: 100%;
-        height: 200px;
-        object-fit: cover;
-    }
+@* ************************* SEARCH ************************* *@
+<Card>
+    <CardBody>
 
-    .pet-info {
-        padding: 15px;
-    }
-
-    .pet-name {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .pet-price {
-        font-size: 1.1rem;
-        color: #e44d26;
-        font-weight: bold;
-    }
-
-    .search-section {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-    }
-
-    .cart-button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .cart-button:hover {
-        background-color: #45a049;
-    }
-
-    .promotion-badge {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: #ff4444;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-weight: bold;
-    }
-
-    .stock-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: #28a745;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-weight: bold;
-    }
-
-    .out-of-stock-badge {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        background: #dc3545;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-weight: bold;
-    }
-</style>
-
-<div class="container mt-4">
-    <!-- Search Section -->
-    <Card>
-        <CardBody>
+        <Row>
+            <div class="col-md-8 col-lg-10">
+                <div class="mb-3">
+                    <Form id="DogPetClientSearchForm">
+                        <Addons>
+                            <Addon AddonType="AddonType.Body">
+                                <TextEdit @bind-Text="@Filter.FilterText"
+                                        Autofocus="true"
+                                        Placeholder="@L["Search"]">
+                                </TextEdit>
+                            </Addon>
+                            <Addon AddonType="AddonType.End">
+                                <SubmitButton Form="DogPetClientSearchForm" Clicked="GetDogPetsClientAsync">
+                                    <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
+                                </SubmitButton>
+                            </Addon>
+                        </Addons>
+                    </Form>
+                </div>
+            </div>
+                
+                   <div class="col-md-4 col-lg-2">
+            <div class="mb-3">
+               <Button Color="Color.Primary" Outline Style="width:100%" id="AdvancedFilterSectionToggler"
+                         Clicked="@(() => ShowAdvancedFilters = !ShowAdvancedFilters)">@L["Filters"]
+                         <i aria-hidden="true" class="fa ms-1 @(!ShowAdvancedFilters ? "fa-angle-down" : "fa-angle-up")"></i>
+               </Button>
+            </div>
+       </div>
+        
+        <div style="display: @(!ShowAdvancedFilters ? "none" : "block")"  class="mt-3">
             <Row>
-                <div class="col-md-8 col-lg-8">
-                    <div class="mb-3">
-                        <Form id="DogPetSearchForm">
-                            <Addons>
-                                <Addon AddonType="AddonType.Body">
-                                    <TextEdit @bind-Text="@Filter.FilterText"
-                                            Autofocus="true"
-                                            Placeholder="@L["Search"]">
-                                    </TextEdit>
-                                </Addon>
-                                <Addon AddonType="AddonType.End">
-                                    <SubmitButton Form="DogPetSearchForm" Clicked="GetDogPetsAsync">
-                                        <Icon Name="IconName.Search" Class="me-1"></Icon>@L["Search"]
-                                    </SubmitButton>
-                                </Addon>
-                            </Addons>
-                        </Form>
-                    </div>
-                </div>
-                    
-                <div class="col-md-4 col-lg-2">
-                    <div class="mb-3">
-                        <Button Color="Color.Primary" Outline Style="width:100%" id="AdvancedFilterSectionToggler"
-                                Clicked="@(() => ShowAdvancedFilters = !ShowAdvancedFilters)">@L["Filters"]
-                            <i aria-hidden="true" class="fa ms-1 @(!ShowAdvancedFilters ? "fa-angle-down" : "fa-angle-up")"></i>
-                        </Button>
-                    </div>
-                </div>
-                <!-- Add Image Search Button -->
-                <div class="col-md-4 col-lg-2">
-                    <div class="mb-3">
-                        <Button Color="Color.Primary" Outline Style="width:100%" id="ImageSearchButton"
-                                @onclick="ShowImageSearchModal">@L["Image Search"]
-                            <i aria-hidden="true" class="fa ms-1 fa-image"></i>
-                        </Button>
-                    </div>
-                </div>
-            
-                <div style="display: @(!ShowAdvancedFilters ? "none" : "block")" class="mt-3">
-                    <Row>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["Name"]</FieldLabel>
-                                <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["Breed"]</FieldLabel>
-                                <TextEdit Text="@Filter.Breed" TextChanged="@OnBreedChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["MinAge"]</FieldLabel>
-                                <NumericEdit TValue="float?" 
-                                           Value="@Filter.AgeMin"
-                                           ValueChanged="@OnAgeMinChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["MaxAge"]</FieldLabel>
-                                <NumericEdit TValue="float?" 
-                                           Value="@Filter.AgeMax"
-                                           ValueChanged="@OnAgeMaxChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["Gender"]</FieldLabel>
-                                <TextEdit Text="@Filter.Gender" TextChanged="@OnGenderChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["Color"]</FieldLabel>
-                                <TextEdit Text="@Filter.Color" TextChanged="@OnColorChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["MinWeight"]</FieldLabel>
-                                <NumericEdit TValue="float?" 
-                                           Value="@Filter.WeightMin"
-                                           ValueChanged="@OnWeightMinChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["MaxWeight"]</FieldLabel>
-                                <NumericEdit TValue="float?" 
-                                           Value="@Filter.WeightMax"
-                                           ValueChanged="@OnWeightMaxChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["MinPrice"]</FieldLabel>
-                                <NumericEdit TValue="decimal?" 
-                                           Value="@Filter.PriceMin"
-                                           ValueChanged="@OnPriceMinChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["MaxPrice"]</FieldLabel>
-                                <NumericEdit TValue="decimal?" 
-                                           Value="@Filter.PriceMax"
-                                           ValueChanged="@OnPriceMaxChangedAsync" />                       
-                            </Field>
-                        </Column>
-                        <Column ColumnSize="ColumnSize.Is3">
-                            <Field>
-                                <FieldLabel>@L["IsStock"]</FieldLabel>
-                                <Select TValue="bool?"
-                                       SelectedValue="@Filter.IsStock"
-                                       SelectedValueChanged="@OnIsStockChangedAsync">
-                                    <SelectItem></SelectItem>
-                                    <SelectItem Value="true">@L["Yes"]</SelectItem>
-                                    <SelectItem Value="false">@L["No"]</SelectItem>
-                                </Select>                       
-                            </Field>
-                        </Column>
-                    </Row>
-                </div>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Name"]</FieldLabel>
+                        <TextEdit Text="@Filter.Name" TextChanged="@OnNameChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Breed"]</FieldLabel>
+                        <TextEdit Text="@Filter.Breed" TextChanged="@OnBreedChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MinAge"]</FieldLabel>
+                        <NumericEdit TValue="float?" 
+             Value="@Filter.AgeMin"
+             ValueChanged="@OnAgeMinChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MaxAge"]</FieldLabel>
+                        <NumericEdit TValue="float?" 
+             Value="@Filter.AgeMax"
+             ValueChanged="@OnAgeMaxChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Gender"]</FieldLabel>
+                        <TextEdit Text="@Filter.Gender" TextChanged="@OnGenderChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["Color"]</FieldLabel>
+                        <TextEdit Text="@Filter.Color" TextChanged="@OnColorChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MinWeight"]</FieldLabel>
+                        <NumericEdit TValue="float?" 
+             Value="@Filter.WeightMin"
+             ValueChanged="@OnWeightMinChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MaxWeight"]</FieldLabel>
+                        <NumericEdit TValue="float?" 
+             Value="@Filter.WeightMax"
+             ValueChanged="@OnWeightMaxChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["HealthStatus"]</FieldLabel>
+                        <TextEdit Text="@Filter.HealthStatus" TextChanged="@OnHealthStatusChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MinVaccinations"]</FieldLabel>
+                        <NumericEdit TValue="int?" 
+             Value="@Filter.VaccinationsMin"
+             ValueChanged="@OnVaccinationsMinChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MaxVaccinations"]</FieldLabel>
+                        <NumericEdit TValue="int?" 
+             Value="@Filter.VaccinationsMax"
+             ValueChanged="@OnVaccinationsMaxChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MinPrice"]</FieldLabel>
+                        <NumericEdit TValue="decimal?" 
+             Value="@Filter.PriceMin"
+             ValueChanged="@OnPriceMinChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MaxPrice"]</FieldLabel>
+                        <NumericEdit TValue="decimal?" 
+             Value="@Filter.PriceMax"
+             ValueChanged="@OnPriceMaxChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MinPromotionPecents"]</FieldLabel>
+                        <NumericEdit TValue="float?" 
+             Value="@Filter.PromotionPecentsMin"
+             ValueChanged="@OnPromotionPecentsMinChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["MaxPromotionPecents"]</FieldLabel>
+                        <NumericEdit TValue="float?" 
+             Value="@Filter.PromotionPecentsMax"
+             ValueChanged="@OnPromotionPecentsMaxChangedAsync" />                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["IsStock"]</FieldLabel>
+                        <Select TValue="bool?"
+		SelectedValue="@Filter.IsStock"
+		SelectedValueChanged="@OnIsStockChangedAsync">
+
+<SelectItem></SelectItem>
+<SelectItem Value="true">@L["Yes"]</SelectItem>
+<SelectItem Value="false">@L["No"]</SelectItem>
+
+</Select>                       
+                    </Field>
+                </Column>
+                <Column ColumnSize="ColumnSize.Is3">
+                    <Field>
+                        <FieldLabel>@L["OtherInformation"]</FieldLabel>
+                        <TextEdit Text="@Filter.OtherInformation" TextChanged="@OnOtherInformationChangedAsync" />                       
+                    </Field>
+                </Column>
             </Row>
-        </CardBody>
-    </Card>
 
-    <!-- Pet Grid -->
-    <Row>
-        @foreach (var pet in DogPetList)
+        </div>
+
+        </Row>
+
+
+    </CardBody>
+</Card>
+
+@* ************************* DATA GRID ************************* *@
+<Card>
+    <CardBody>        
+        @if (SelectedDogPetsClient.Any())
         {
-            <Column ColumnSize="ColumnSize.Is3.OnDesktop.Is6.OnTablet.Is12.OnMobile" Class="mb-4">
-                <div class="pet-card position-relative">
-                    @if (pet.PromotionPecents > 0)
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                @if (AllDogPetsClientSelected)
+                {
+                    <p class="lead mb-0">
+                        @L["AllItemsAreSelected", TotalCount]
+                    </p>
+                }
+                else
+                {
+                    <p class="lead mb-0">
+                        @if (SelectedDogPetsClient.Count > 1)
+                        {
+                            @L["NumberOfItemsOnThisPageAreSelected", SelectedDogPetsClient.Count]
+                        }
+                        else
+                        {
+                            @L["OneItemOnThisPageIsSelected"]
+                        }
+                    </p>
+                }
+                    
+                <div>
+                    @if ((SelectedDogPetsClient.Count == PageSize || SelectedDogPetsClient.Count == DogPetClientList.Count) && TotalCount > SelectedDogPetsClient.Count)
                     {
-                        <div class="promotion-badge">
-                            -@(pet.PromotionPecents)%
-                        </div>
+                        if (!AllDogPetsClientSelected)
+                        {
+                            <Button Clicked="SelectAllItems" Class="mx-1 btn-outline-secondary">@L["SelectAllItems", TotalCount]</Button>
+                        }
+                        else
+                        {
+                            <Button Clicked="ClearSelection" Class="mx-1 btn-outline-secondary">@L["ClearSelection"]</Button>
+                        }
                     }
                     
-                    @if (pet.IsStock)
-                    {
-                        <div class="stock-badge">
-                            @L["InStock"]
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="out-of-stock-badge">
-                            @L["OutOfStock"]
-                        </div>
-                    }
+                    <Button Color="Color.Danger" Class="mx-1" Size="Size.Medium" Clicked="DeleteSelectedDogPetsClientAsync">
+                        <Icon Name="@IconName.Delete" /> @L["Delete"]
+                    </Button>
+                </div>
+            </div>
+            
+            <hr class="my-1 mx-0"/>
+        }
+        <DataGrid TItem="DogPetClientDto"
+                  Data="DogPetClientList"
+                  
+                  SelectionMode="DataGridSelectionMode.Multiple"
+                  SelectedRows="SelectedDogPetsClient"
+                  RowSelectable="@((args) => CanDeleteDogPetClient)"
+                  SelectedRowsChanged="SelectedDogPetClientRowsChanged"
+                  
+                  
+                  
+                  ReadData="OnDataGridReadAsync"
+                  TotalItems="TotalCount"
+                  ShowPager="true"
+                  Responsive="true"
+                  PageSize="PageSize"
+                  Class="datagrid-detail">
+            <LoadingTemplate>
+                <Row Class="w-100 align-items-center" Style="height: 150px;">
+                    <Column>
+                       <RadarSpinner />
+                    </Column>
+                </Row>
+            </LoadingTemplate>
+            <EmptyTemplate>
+                <Row Class="w-100 align-items-center" Style="height: 150px;">
+                    <Column>
+                        <Heading Size="HeadingSize.Is4" TextAlignment="TextAlignment.Center">@L["NoDataAvailable"]</Heading>
+                    </Column>
+                </Row>
+            </EmptyTemplate>   
+            <DataGridColumns>
+                
+                @if (CanDeleteDogPetClient && DogPetClientList.Any())
+                {
+                    <DataGridMultiSelectColumn TItem="DogPetClientDto" DisplayOrder="-1" Width="30px"></DataGridMultiSelectColumn>
+                }
+                
+                <DataGridEntityActionsColumn TItem="DogPetClientDto" @ref="@EntityActionsColumn">
+                    <DisplayTemplate>
+                        <EntityActions TItem="DogPetClientDto" EntityActionsColumn="@EntityActionsColumn">
+                            <EntityAction TItem="DogPetClientDto"
+                                          Visible="@CanEditDogPetClient"
+                                          Clicked="async () => await OpenEditDogPetClientModalAsync(context)"
+                                          Text="@L["Edit"]"></EntityAction>
+                            <EntityAction TItem="DogPetClientDto"
+                                          Visible="@CanDeleteDogPetClient"
+                                          Clicked="() => DeleteDogPetClientAsync(context)"
+                                          ConfirmationMessage="@(()=> L["DeleteConfirmationMessage"])"
+                                          Text="@L["Delete"]"></EntityAction>
 
-                    @if (pet.ImageId != null && pet.ImageId != Guid.Empty)
-                    {
-                        <img src="@($"{Configuration["ApiBaseUrl"]}/api/app/dog-pets/image?ImageId={pet.ImageId}")"
-                             class="pet-image"
-                             alt="@pet.Name" />
-                    }
-                    else
-                    {
-                        <img src="/images/default-dog.jpg" class="pet-image" alt="Default Dog" />
-                    }
-
-                    <div class="pet-info">
-                        <div class="pet-name">@pet.Name</div>
-                        <div><strong>@L["Breed"]:</strong> @pet.Breed</div>
-                        <div><strong>@L["Age"]:</strong> @pet.Age @L["Years"]</div>
-                        <div><strong>@L["Gender"]:</strong> @pet.Gender</div>
-                        
-                        @if (pet.PromotionPecents > 0)
+                        </EntityActions>
+                    </DisplayTemplate>
+                </DataGridEntityActionsColumn>
+               
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="ImageId"
+                      Caption="@L["Image"]">
+                      <DisplayTemplate>
+                        @if (context.ImageId != null && context.ImageId != Guid.Empty)
+                        {   
+                            <Icon Name="IconName.FileAlt" Clicked="async () => await DownloadFileAsync(context.ImageId)" />
+                        }
+                        else
                         {
-                            var discountedPrice = pet.Price * (1 - (decimal)pet.PromotionPecents / 100);
-                            <div class="pet-price">
-                                <del class="text-muted">@pet.Price.ToString("C")</del>
-                                @discountedPrice.ToString("C")
+                            <span>"-"</span>
+                        }
+                      </DisplayTemplate>
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="Name"
+                      Caption="@L["Name"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="Breed"
+                      Caption="@L["Breed"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="Age"
+                      Caption="@L["Age"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="Gender"
+                      Caption="@L["Gender"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="Color"
+                      Caption="@L["Color"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="Weight"
+                      Caption="@L["Weight"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="HealthStatus"
+                      Caption="@L["HealthStatus"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="Vaccinations"
+                      Caption="@L["Vaccinations"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="Price"
+                      Caption="@L["Price"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="PromotionPecents"
+                      Caption="@L["PromotionPecents"]">
+              </DataGridColumn>
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="IsStock"
+                      Caption="@L["IsStock"]">
+                    <DisplayTemplate>
+                        @if (context.IsStock)
+                        {
+                            <Icon TextColor="TextColor.Success" Name="@IconName.Check" />
+                        }
+                        else
+                        {
+                            <Icon TextColor="TextColor.Danger" Name="@IconName.Times" />
+                        }
+                    </DisplayTemplate>
+              </DataGridColumn>
+
+
+              <DataGridColumn TItem="DogPetClientDto"
+                      Field="OtherInformation"
+                      Caption="@L["OtherInformation"]">
+              </DataGridColumn>
+
+            </DataGridColumns>
+            
+            
+        </DataGrid>
+    </CardBody>
+</Card>
+
+@* ************************* CREATE MODAL ************************* *@
+<Modal @ref="CreateDogPetClientModal" Closing="@CreateDogPetClientModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="CreateDogPetClientForm">
+            <ModalHeader>
+                <ModalTitle>@L["NewDogPetClient"]</ModalTitle>
+                <CloseButton Clicked="CloseCreateDogPetClientModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@NewDogPetClientValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@NewDogPetClient"
+                            ValidateOnLoad="false">
+                    
+                    
+                        <Field>
+                            <FieldLabel>@L["Image"] *</FieldLabel>
+                            <InputFile class="form-control file-input" OnChange="@OnNewDogPetClientImageChanged" required/>
+                            @if (OnNewDogPetClientImageLoading)
+                            {
+                                <p>@L["FileUploading"]</p>
+                            }
+                            <p class="text-muted pt-1"><i class="fa fa-info-circle"></i> @L["MaxFileSizeLimit", 10]</p>
+                        </Field>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewDogPetClient.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Breed"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewDogPetClient.Breed"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Age"]</FieldLabel>
+                            <NumericPicker TValue="float" @bind-Value="@NewDogPetClient.Age"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Gender"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewDogPetClient.Gender"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Color"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewDogPetClient.Color"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Weight"]</FieldLabel>
+                            <NumericPicker TValue="float" @bind-Value="@NewDogPetClient.Weight"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["HealthStatus"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewDogPetClient.HealthStatus"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Vaccinations"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@NewDogPetClient.Vaccinations"  Decimals="0" >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Price"]</FieldLabel>
+                            <NumericPicker TValue="decimal" @bind-Value="@NewDogPetClient.Price"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["PromotionPecents"]</FieldLabel>
+                            <NumericPicker TValue="float" @bind-Value="@NewDogPetClient.PromotionPecents"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@NewDogPetClient.IsStock" >@L["IsStock"]</Check>
+                    </Field>
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["OtherInformation"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewDogPetClient.OtherInformation"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseCreateDogPetClientModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="CreateDogPetClientForm" Clicked="CreateDogPetClientAsync" Disabled="@IsCreateFormDisabled()"/>
+
+            </ModalFooter>
+        </Form>
+
+    </ModalContent>
+</Modal>
+
+@* ************************* EDIT MODAL ************************* *@
+<Modal @ref="EditDogPetClientModal" Closing="@EditDogPetClientModal.CancelClosingModalWhenFocusLost">
+    <ModalContent Centered="true">
+
+        <Form id="EditDogPetClientForm">
+            <ModalHeader>
+                <ModalTitle>@L["Update"]</ModalTitle>
+                <CloseButton Clicked="CloseEditDogPetClientModalAsync" />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="@EditingDogPetClientValidations"
+                            Mode="ValidationMode.Auto"
+                            Model="@EditingDogPetClient"
+                            ValidateOnLoad="false">
+                    
+                    
+                    <Field>
+                        <FieldLabel>@L["Image"] *</FieldLabel>
+                        @if (HasSelectedDogPetClientImage)
+                        {
+                            <div class="mb-2">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="@L["DownloadSelectedFile"].Value" @onclick="@(async () => await DownloadFileAsync(EditingDogPetClient.ImageId))"><i class="fa fa-file-alt"></i></button>
+                                    <button type="button" class="btn btn-primary btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="@L["RemoveSelectedFile"].Value" @onclick="(() => { EditingDogPetClient.ImageId = Guid.Empty; HasSelectedDogPetClientImage = false; })"><i class="fa fa-trash"></i></button>
+                                </div>
                             </div>
                         }
                         else
                         {
-                            <div class="pet-price">@pet.Price.ToString("C")</div>
+                            <Field>
+                                <InputFile class="form-control file-input" OnChange="@OnEditDogPetClientImageChanged" required/>
+                                @if (OnEditDogPetClientImageLoading)
+                                {
+                                    <p>@L["FileUploading"]</p>
+                                }
+                                <p class="text-muted pt-1"><i class="fa fa-info-circle"></i> @L["MaxFileSizeLimit", 10]</p>
+                            </Field>
                         }
+                    </Field>
 
-                        <div class="mt-3">
-                            <Button Color="Color.Primary" 
-                                    Clicked="@(() => OpenPetDetailsModal(pet))"
-                                    Class="me-2">
-                                @L["Details"]
-                            </Button>
-                            <Button Color="Color.Success" 
-                                    Disabled="@(!pet.IsStock)"
-                                    Clicked="@(() => AddToCart(pet))">
-                                @L["AddToCart"]
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </Column>
-        }
-    </Row>
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Name"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingDogPetClient.Name"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
 
-    <!-- Pagination -->
-    <Row Class="mt-4">
-        <Column>
-            <Pagination>
-                <PaginationItem Disabled="@(CurrentPage == 1)">
-                    <PaginationLink Clicked="@(() => NavigateToPage(CurrentPage - 1))">
-                        @L["Previous"]
-                    </PaginationLink>
-                </PaginationItem>
-                
-                @for (int i = 1; i <= TotalPages; i++)
-                {
-                    var pageNumber = i;
-                    <PaginationItem Active="@(pageNumber == CurrentPage)">
-                        <PaginationLink Clicked="@(() => NavigateToPage(pageNumber))">
-                            @pageNumber
-                        </PaginationLink>
-                    </PaginationItem>
-                }
 
-                <PaginationItem Disabled="@(CurrentPage == TotalPages)">
-                    <PaginationLink Clicked="@(() => NavigateToPage(CurrentPage + 1))">
-                        @L["Next"]
-                    </PaginationLink>
-                </PaginationItem>
-            </Pagination>
-        </Column>
-    </Row>
-</div>
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Breed"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingDogPetClient.Breed"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
 
-<!-- Image Search Modal -->
-<Modal @ref="ImageSearchModal">
-    <ModalContent Centered="true">
-        <ModalHeader>
-            <ModalTitle>@L["ImageSearch"]</ModalTitle>
-            <CloseButton Clicked="@CloseImageSearchModal" />
-        </ModalHeader>
-        <ModalBody>
-            <div class="text-center">
-                <div class="mb-3">
-                    <InputFile OnChange="UploadImage" accept="image/*" />
-                </div>
-                @if (!string.IsNullOrEmpty(ImagePreview))
-                {
-                    <img src="@ImagePreview" 
-                         alt="Preview" 
-                         style="max-width: 200px; max-height: 200px; object-fit: cover;" />
-                }
-                <div class="mt-3">
-                    <Button Color="Color.Primary" 
-                            Clicked="@ShowWebcamPopup"
-                            Class="me-2">
-                        <Icon Name="IconName.Camera" /> @L["UseCamera"]
-                    </Button>
-                    <Button Color="Color.Success" 
-                            Clicked="@Predict"
-                            Disabled="@(string.IsNullOrEmpty(ImagePreview))">
-                        <Icon Name="IconName.Search" /> @L["Search"]
-                    </Button>
-                </div>
-            </div>
-        </ModalBody>
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Age"]</FieldLabel>
+                            <NumericPicker TValue="float" @bind-Value="@EditingDogPetClient.Age"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Gender"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingDogPetClient.Gender"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Color"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingDogPetClient.Color"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Weight"]</FieldLabel>
+                            <NumericPicker TValue="float" @bind-Value="@EditingDogPetClient.Weight"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["HealthStatus"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingDogPetClient.HealthStatus"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Vaccinations"]</FieldLabel>
+                            <NumericPicker TValue="int" @bind-Value="@EditingDogPetClient.Vaccinations"  Decimals="0" >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["Price"]</FieldLabel>
+                            <NumericPicker TValue="decimal" @bind-Value="@EditingDogPetClient.Price"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["PromotionPecents"]</FieldLabel>
+                            <NumericPicker TValue="float" @bind-Value="@EditingDogPetClient.PromotionPecents"   >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                             </NumericPicker>
+                        </Field>
+                     </Validation>
+
+
+                    <Field>
+                        <Check TValue="bool" @bind-Checked="@EditingDogPetClient.IsStock" >@L["IsStock"]</Check>
+                    </Field>
+
+                    <Validation MessageLocalizer="@LH.Localize">
+                        <Field>
+                            <FieldLabel>@L["OtherInformation"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingDogPetClient.OtherInformation"  >
+                                <Feedback>
+                                    <ValidationError />
+                                </Feedback>
+                            </TextEdit>
+                        </Field>
+                    </Validation>
+
+
+                    
+                    
+                </Validations>
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Secondary"
+                        Clicked="CloseEditDogPetClientModalAsync">
+                    @L["Cancel"]
+                </Button>
+                <SubmitButton Form="EditDogPetClientForm" Clicked="UpdateDogPetClientAsync" Disabled="@IsEditFormDisabled()" />
+
+            </ModalFooter>
+        </Form>
+
     </ModalContent>
 </Modal>
 
-<!-- Pet Details Modal -->
-<Modal @ref="PetDetailsModal">
-    <ModalContent Size="ModalSize.Large">
-        <ModalHeader>
-            <ModalTitle>@(SelectedPet?.Name)</ModalTitle>
-            <CloseButton Clicked="@ClosePetDetailsModal" />
-        </ModalHeader>
-        <ModalBody>
-            @if (SelectedPet != null)
-            {
-                <Row>
-                    <Column ColumnSize="ColumnSize.Is6">
-                        @if (SelectedPet.ImageId != null && SelectedPet.ImageId != Guid.Empty)
-                        {
-                            <img src="@($"{Configuration["ApiBaseUrl"]}/api/app/dog-pets/image?ImageId={SelectedPet.ImageId}")"
-                                 style="width: 100%; height: auto; border-radius: 8px;"
-                                 alt="@SelectedPet.Name" />
-                        }
-                    </Column>
-                    <Column ColumnSize="ColumnSize.Is6">
-                        <h4>@L["Details"]</h4>
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th>@L["Breed"]</th>
-                                    <td>@SelectedPet.Breed</td>
-                                </tr>
-                                <tr>
-                                    <th>@L["Age"]</th>
-                                    <td>@SelectedPet.Age @L["Years"]</td>
-                                </tr>
-                                <tr>
-                                    <th>@L["Gender"]</th>
-                                    <td>@SelectedPet.Gender</td>
-                                </tr>
-                                <tr>
-                                    <th>@L["Color"]</th>
-                                    <td>@SelectedPet.Color</td>
-                                </tr>
-                                <tr>
-                                    <th>@L["Weight"]</th>
-                                    <td>@SelectedPet.Weight kg</td>
-                                </tr>
-                                <tr>
-                                    <th>@L["HealthStatus"]</th>
-                                    <td>@SelectedPet.HealthStatus</td>
-                                </tr>
-                                <tr>
-                                    <th>@L["Vaccinations"]</th>
-                                    <td>@SelectedPet.Vaccinations</td>
-                                </tr>
-                                <tr>
-                                    <th>@L["Price"]</th>
-                                    <td>
-                                        @if (SelectedPet.PromotionPecents > 0)
-                                        {
-                                            var discountedPrice = SelectedPet.Price * (1 - (decimal)SelectedPet.PromotionPecents / 100);
-                                            <span>
-                                                <del class="text-muted">@SelectedPet.Price.ToString("C")</del>
-                                                @discountedPrice.ToString("C")
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            @SelectedPet.Price.ToString("C")
-                                        }
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <div class="mt-3">
-                            <Button Color="Color.Success" 
-                                    Disabled="@(!SelectedPet.IsStock)"
-                                    Clicked="@(() => AddToCart(SelectedPet))">
-                                @L["AddToCart"]
-                            </Button>
-                        </div>
-                    </Column>
-                </Row>
-            }
-        </ModalBody>
-    </ModalContent>
-</Modal>
-
-@code {
-    private GetDogPetsInput Filter { get; set; } = new GetDogPetsInput();
-    private IReadOnlyList<DogPetDto> DogPetList { get; set; } = new List<DogPetDto>();
-    private int TotalCount { get; set; }
-    private bool ShowAdvancedFilters { get; set; }
-    private int CurrentPage { get; set; } = 1;
-    private int PageSize { get; set; } = 12;
-    private int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
-
-    private Modal ImageSearchModal { get; set; }
-    private Modal PetDetailsModal { get; set; }
-    private DogPetDto SelectedPet { get; set; }
-    private string ImagePreview { get; set; }
-    private byte[] ImageData { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetDogPetsAsync();
-    }
-
-    private async Task GetDogPetsAsync()
-    {
-        Filter.MaxResultCount = PageSize;
-        Filter.SkipCount = (CurrentPage - 1) * PageSize;
-        
-        var result = await DogPetsAppService.GetListAsync(Filter);
-        DogPetList = result.Items;
-        TotalCount = (int)result.TotalCount;
-    }
-
-    private async Task NavigateToPage(int page)
-    {
-        if (page < 1 || page > TotalPages) return;
-        CurrentPage = page;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnNameChangedAsync(string value)
-    {
-        Filter.Name = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnBreedChangedAsync(string value)
-    {
-        Filter.Breed = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnAgeMinChangedAsync(float? value)
-    {
-        Filter.AgeMin = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnAgeMaxChangedAsync(float? value)
-    {
-        Filter.AgeMax = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnGenderChangedAsync(string value)
-    {
-        Filter.Gender = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnColorChangedAsync(string value)
-    {
-        Filter.Color = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnWeightMinChangedAsync(float? value)
-    {
-        Filter.WeightMin = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnWeightMaxChangedAsync(float? value)
-    {
-        Filter.WeightMax = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnPriceMinChangedAsync(decimal? value)
-    {
-        Filter.PriceMin = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnPriceMaxChangedAsync(decimal? value)
-    {
-        Filter.PriceMax = value;
-        await GetDogPetsAsync();
-    }
-
-    private async Task OnIsStockChangedAsync(bool? value)
-    {
-        Filter.IsStock = value;
-        await GetDogPetsAsync();
-    }
-
-    private void ShowImageSearchModal()
-    {
-        ImageSearchModal.Show();
-    }
-
-    private void CloseImageSearchModal()
-    {
-        ImageSearchModal.Hide();
-    }
-
-    private async Task UploadImage(InputFileChangeEventArgs e)
-    {
-        var file = e.File;
-        if (file != null)
-        {
-            var buffer = new byte[file.Size];
-            await file.OpenReadStream().ReadAsync(buffer);
-            ImageData = buffer;
-            ImagePreview = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
-        }
-    }
-
-    private async Task Predict()
-    {
-        if (ImageData == null)
-        {
-            await UiMessageService.Warn(L["PleaseUploadImage"]);
-            return;
-        }
-
-        var content = new MultipartFormDataContent();
-        content.Add(new ByteArrayContent(ImageData), "image", "upload.jpg");
-
-        try
-        {
-            var response = await Http.PostAsync("http://127.0.0.1:8080/predict", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var result = await response.Content.ReadAsStringAsync();
-                var jsonDoc = JsonDocument.Parse(result);
-                var root = jsonDoc.RootElement;
-
-                if (root.TryGetProperty("breed_name", out JsonElement breedNameElement))
-                {
-                    Filter.Breed = breedNameElement.GetString()?.Trim() ?? "";
-                    await GetDogPetsAsync();
-                    CloseImageSearchModal();
-                }
-            }
-            else
-            {
-                await UiMessageService.Error(L["APIError"]);
-            }
-        }
-        catch (Exception ex)
-        {
-            await UiMessageService.Error(L["SystemError"]);
-        }
-    }
-
-    private void OpenPetDetailsModal(DogPetDto pet)
-    {
-        SelectedPet = pet;
-        PetDetailsModal.Show();
-    }
-
-    private void ClosePetDetailsModal()
-    {
-        PetDetailsModal.Hide();
-        SelectedPet = null;
-    }
-
-    private async Task AddToCart(DogPetDto pet)
-    {
-        // Implement add to cart functionality
-        await UiMessageService.Success(L["AddedToCart"]);
-    }
-
-    private async Task ShowWebcamPopup()
-    {
-        await JS.InvokeVoidAsync("showWebcamPopup");
-    }
-}

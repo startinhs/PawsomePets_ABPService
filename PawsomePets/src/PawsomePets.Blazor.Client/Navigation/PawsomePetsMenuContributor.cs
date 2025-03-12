@@ -98,6 +98,15 @@ public class PawsomePetsMenuContributor : IMenuContributor
 icon: "fa fa-file-alt",
                 requiredPermissionName: PawsomePetsPermissions.DogPets.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                PawsomePetsMenus.DogPetsClient,
+                l["Menu:DogPetsClient"],
+                url: "/dog-pets-client",
+                icon: "fa fa-dog",
+                requiredPermissionName: PawsomePetsPermissions.DogPetsClient.Default)
+        );
     }
 
     private async Task ConfigureUserMenuAsync(MenuConfigurationContext context)

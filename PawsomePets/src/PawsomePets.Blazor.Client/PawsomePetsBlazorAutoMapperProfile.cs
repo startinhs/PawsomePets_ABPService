@@ -1,3 +1,4 @@
+using PawsomePets.DogPetsClient;
 using Volo.Abp.AutoMapper;
 using PawsomePets.DogPets;
 using AutoMapper;
@@ -11,5 +12,7 @@ public class PawsomePetsBlazorAutoMapperProfile : Profile
         //Define your AutoMapper configuration here for the Blazor project.
 
         CreateMap<DogPetDto, DogPetUpdateDto>();
+
+        CreateMap<DogPetClientDto, DogPetClientUpdateDto>();
     }
 }

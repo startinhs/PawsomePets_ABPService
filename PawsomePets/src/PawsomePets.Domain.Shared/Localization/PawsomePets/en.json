@@ -92,6 +92,10 @@
     "Menu:PawsomePets": "Pawsome Pets",
     "Image": "Image",
     "MinImage": "Min Image",
-    "MaxImage": "Max Image"
+    "MaxImage": "Max Image",
+    "Permission:DogPetsClient": "Dog Pets Client",
+    "DogPetsClient": "Dog Pets Client",
+    "NewDogPetClient": "New Dog Pet Client",
+    "Menu:DogPetsClient": "Dog Pets Client"
   }
 }

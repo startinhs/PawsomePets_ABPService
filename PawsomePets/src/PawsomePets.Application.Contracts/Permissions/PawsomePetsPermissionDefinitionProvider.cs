@@ -21,6 +21,11 @@ public class PawsomePetsPermissionDefinitionProvider : PermissionDefinitionProvi
         dogPetPermission.AddChild(PawsomePetsPermissions.DogPets.Create, L("Permission:Create"));
         dogPetPermission.AddChild(PawsomePetsPermissions.DogPets.Edit, L("Permission:Edit"));
         dogPetPermission.AddChild(PawsomePetsPermissions.DogPets.Delete, L("Permission:Delete"));
+
+        var dogPetClientPermission = myGroup.AddPermission(PawsomePetsPermissions.DogPetsClient.Default, L("Permission:DogPetsClient"));
+        dogPetClientPermission.AddChild(PawsomePetsPermissions.DogPetsClient.Create, L("Permission:Create"));
+        dogPetClientPermission.AddChild(PawsomePetsPermissions.DogPetsClient.Edit, L("Permission:Edit"));
+        dogPetClientPermission.AddChild(PawsomePetsPermissions.DogPetsClient.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)
