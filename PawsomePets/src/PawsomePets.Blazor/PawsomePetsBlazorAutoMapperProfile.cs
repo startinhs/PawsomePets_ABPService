@@ -1,3 +1,4 @@
+using PawsomePets.MediaStorages;
 using PawsomePets.DogPetsClient;
 using Volo.Abp.AutoMapper;
 using PawsomePets.DogPets;
@@ -14,5 +15,7 @@ public class PawsomePetsBlazorAutoMapperProfile : Profile
         CreateMap<DogPetDto, DogPetUpdateDto>();
 
         CreateMap<DogPetClientDto, DogPetClientUpdateDto>();
+
+        CreateMap<MediaStorageDto, MediaStorageUpdateDto>();
     }
 }

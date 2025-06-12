@@ -12,4 +12,6 @@ public class PawsomePetsMenus
 
     public const string DogPetsClient = Prefix + ".DogPetsClient";
 
+    public const string MediaStorages = Prefix + ".MediaStorages";
+
 }

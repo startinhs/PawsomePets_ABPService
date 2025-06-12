@@ -107,6 +107,15 @@ icon: "fa fa-file-alt",
                 icon: "fa fa-dog",
                 requiredPermissionName: PawsomePetsPermissions.DogPetsClient.Default)
         );
+
+        context.Menu.AddItem(
+            new ApplicationMenuItem(
+                PawsomePetsMenus.MediaStorages,
+                l["Menu:MediaStorages"],
+                url: "/media-storages",
+                icon: "fa fa-file-alt",
+                requiredPermissionName: PawsomePetsPermissions.MediaStorages.Default)
+        );
     }
 
     private async Task ConfigureUserMenuAsync(MenuConfigurationContext context)
