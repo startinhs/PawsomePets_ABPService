@@ -1,3 +1,4 @@
+using PawsomePets.MediaStorages;
 using PawsomePets.DogPetsClient;
 using PawsomePets.DogPets;
 using Volo.Abp.Data;
@@ -9,6 +10,7 @@ namespace PawsomePets.MongoDB;
 [ConnectionStringName("Default")]
 public class PawsomePetsMongoDbContext : AbpMongoDbContext
 {
+    public IMongoCollection<MediaStorage> MediaStorages => Collection<MediaStorage>();
     public IMongoCollection<DogPetClient> DogPetsClient => Collection<DogPetClient>();
     public IMongoCollection<AppFileDescriptors.AppFileDescriptor> AppFileDescriptors => Collection<AppFileDescriptors.AppFileDescriptor>();
     public IMongoCollection<DogPet> DogPets => Collection<DogPet>();
@@ -31,5 +33,7 @@ public class PawsomePetsMongoDbContext : AbpMongoDbContext
         modelBuilder.Entity<AppFileDescriptors.AppFileDescriptor>(b => { b.CollectionName = PawsomePetsConsts.DbTablePrefix + "AppFileDescriptors"; });
 
         modelBuilder.Entity<DogPetClient>(b => { b.CollectionName = PawsomePetsConsts.DbTablePrefix + "DogPets"; });
+
+        modelBuilder.Entity<MediaStorage>(b => { b.CollectionName = PawsomePetsConsts.DbTablePrefix + "MediaStorages"; });
     }
 }

@@ -1,3 +1,4 @@
+using PawsomePets.MediaStorages;
 using PawsomePets.DogPetsClient;
 using PawsomePets.DogPets;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +42,8 @@ public class PawsomePetsMongoDbModule : AbpModule
             options.AddRepository<DogPet, DogPets.MongoDogPetRepository>();
 
             options.AddRepository<DogPetClient, DogPetsClient.MongoDogPetClientRepository>();
+
+            options.AddRepository<MediaStorage, MediaStorages.MongoMediaStorageRepository>();
 
         });
 
