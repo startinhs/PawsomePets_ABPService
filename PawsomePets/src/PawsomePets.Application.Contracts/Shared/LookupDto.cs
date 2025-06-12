@@ -1,6 +1,6 @@
 namespace PawsomePets.Shared
 {
-    public class LookupDto<TKey>
+    public abstract class LookupDtoBase<TKey>
     {
         public TKey Id { get; set; }
 

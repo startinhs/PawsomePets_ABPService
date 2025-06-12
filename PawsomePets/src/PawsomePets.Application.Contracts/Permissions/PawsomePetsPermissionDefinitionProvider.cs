@@ -26,6 +26,11 @@ public class PawsomePetsPermissionDefinitionProvider : PermissionDefinitionProvi
         dogPetClientPermission.AddChild(PawsomePetsPermissions.DogPetsClient.Create, L("Permission:Create"));
         dogPetClientPermission.AddChild(PawsomePetsPermissions.DogPetsClient.Edit, L("Permission:Edit"));
         dogPetClientPermission.AddChild(PawsomePetsPermissions.DogPetsClient.Delete, L("Permission:Delete"));
+
+        var mediaStoragePermission = myGroup.AddPermission(PawsomePetsPermissions.MediaStorages.Default, L("Permission:MediaStorages"));
+        mediaStoragePermission.AddChild(PawsomePetsPermissions.MediaStorages.Create, L("Permission:Create"));
+        mediaStoragePermission.AddChild(PawsomePetsPermissions.MediaStorages.Edit, L("Permission:Edit"));
+        mediaStoragePermission.AddChild(PawsomePetsPermissions.MediaStorages.Delete, L("Permission:Delete"));
     }
 
     private static LocalizableString L(string name)
