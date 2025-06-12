@@ -96,6 +96,24 @@
     "Permission:DogPetsClient": "Dog Pets Client",
     "DogPetsClient": "Dog Pets Client",
     "NewDogPetClient": "New Dog Pet Client",
-    "Menu:DogPetsClient": "Dog Pets Client"
+    "Menu:DogPetsClient": "Dog Pets Client",
+    "Permission:MediaStorages": "Media Storages",
+    "ImageName": "Image Name",
+    "ImageUrl": "Image Url",
+    "Description": "Description",
+    "FileType": "File Type",
+    "FileSize": "File Size",
+    "IsMain": "Is Main",
+    "ProviderName": "Provider Name",
+    "ContainerName": "Container Name",
+    "EntityId": "Entity Id",
+    "EntityType": "Entity Type",
+    "MediaStorages": "Media Storages",
+    "MinFileSize": "Min File Size",
+    "MinEntityId": "Min Entity Id",
+    "MaxFileSize": "Max File Size",
+    "MaxEntityId": "Max Entity Id",
+    "NewMediaStorage": "New Media Storage",
+    "Menu:MediaStorages": "Media Storages"
   }
 }
