@@ -1,3 +1,4 @@
+using PawsomePets.MediaStorages;
 using PawsomePets.DogPetsClient;
 using System;
 using PawsomePets.Shared;
@@ -22,5 +23,8 @@ public class PawsomePetsApplicationAutoMapperProfile : Profile
 
         CreateMap<DogPetClient, DogPetClientDto>();
         CreateMap<DogPetClient, DogPetClientExcelDto>();
+
+        CreateMap<MediaStorage, MediaStorageDto>();
+        CreateMap<MediaStorage, MediaStorageExcelDto>();
     }
 }
