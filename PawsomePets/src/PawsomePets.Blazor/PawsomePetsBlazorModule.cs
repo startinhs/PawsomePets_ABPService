@@ -68,6 +68,7 @@ using Volo.Abp.BlobStoring.Aws;
 using Volo.Abp.BlobStoring.Azure;
 using Volo.Abp.BlobStoring.Database;
 using Volo.Abp.BlobStoring.FileSystem;
+using PawsomePets.Services.FileService;
 
 namespace PawsomePets.Blazor;
 
@@ -140,46 +141,64 @@ public class PawsomePetsBlazorModule : AbpModule
             options.IsBlazorWebApp = true;
         });
 
+        var _selectedBlobProvider = configuration.GetValue<string>("SelectedBlobProvider");
+
         Configure<AbpBlobStoringOptions>(options =>
         {
-            options.Containers.Configure<AzureContainer>(container =>
+            switch (_selectedBlobProvider)
             {
-                container.UseAzure(azure =>
-                {
-                    azure.ConnectionString = configuration["Blob:ConnectionString"];
-                    azure.ContainerName = configuration["Blob:ContainerName"];
-                    azure.CreateContainerIfNotExists = true;
-                });
-            });
-
-            options.Containers.Configure<AwsContainer>(container =>
-            {
-                container.UseAws(Aws =>
-                {
-                    Aws.ContainerName = configuration["S3BucketName"];
-                    Aws.Region = configuration["S3Region"];
-                    Aws.AccessKeyId = configuration["S3AccessKey"];
-                    Aws.SecretAccessKey = configuration["S3SecretAccessKey"];
-                    Aws.Policy = configuration["S3Policy"];
-                    //Aws.DurationSeconds = "expiration date";
-                    Aws.CreateContainerIfNotExists = true;
-                });
-            });
-
-            options.Containers.Configure<DatabaseContainer>(container =>
-            {
-                container.UseDatabase();
-            });
-
-            options.Containers.Configure<FileSystemContainer>(container =>
-            {
-                container.UseFileSystem(fileSystem =>
-                {
-                    var relativePath = configuration["FileSystemPath"];
-                    var absolutePath = Path.Combine(hostingEnvironment.ContentRootPath, relativePath);
-                    fileSystem.BasePath = absolutePath;
-                });
-            });
+                case "Azure":
+                    {
+                        options.Containers.Configure<AzureContainer>(container =>
+                        {
+                            container.UseAzure(azure =>
+                            {
+                                azure.ConnectionString = configuration["Blob:ConnectionString"];
+                                azure.ContainerName = configuration["Blob:ContainerName"];
+                                azure.CreateContainerIfNotExists = true;
+                            });
+                        });
+                        break;
+                    }
+                case "AmazonS3":
+                    {
+                        options.Containers.Configure<AwsContainer>(container =>
+                        {
+                            container.UseAws(Aws =>
+                            {
+                                Aws.ContainerName = configuration["S3BucketName"];
+                                Aws.Region = configuration["S3Region"];
+                                Aws.AccessKeyId = configuration["S3AccessKey"];
+                                Aws.SecretAccessKey = configuration["S3SecretAccessKey"];
+                                Aws.Policy = configuration["S3Policy"];
+                                //Aws.DurationSeconds = "expiration date";
+                                Aws.CreateContainerIfNotExists = true;
+                            });
+                        });
+                        break;
+                    }
+                case "Database":
+                    {
+                        options.Containers.Configure<DatabaseContainer>(container =>
+                        {
+                            container.UseDatabase();
+                        });
+                        break;
+                    }
+                case "FileSystem":
+                    {
+                        options.Containers.Configure<FileSystemContainer>(container =>
+                        {
+                            container.UseFileSystem(fileSystem =>
+                            {
+                                var relativePath = configuration["FileSystemPath"];
+                                var absolutePath = Path.Combine(hostingEnvironment.ContentRootPath, relativePath);
+                                fileSystem.BasePath = absolutePath;
+                            });
+                        });
+                        break;
+                    }
+            }
         });
     }
 
@@ -220,6 +239,8 @@ public class PawsomePetsBlazorModule : AbpModule
         ConfigureRouter(context);
         ConfigureMenu(context);
         ConfigureTheme();
+
+        context.Services.AddSingleton<IFileService, FileService>();
     }
     
     private void ConfigureTheme()

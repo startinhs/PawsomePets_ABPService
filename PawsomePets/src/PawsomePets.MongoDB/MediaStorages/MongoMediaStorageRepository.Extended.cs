@@ -9,16 +9,111 @@ using Volo.Abp.Domain.Repositories.MongoDB;
 using Volo.Abp.MongoDB;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver;
+using Microsoft.Extensions.Configuration;
+using PawsomePets.AbpBlobContainers;
+using Volo.Abp.BlobStoring;
+using PawsomePets.Services.FileService;
 
 namespace PawsomePets.MediaStorages
 {
     public class MongoMediaStorageRepository : MongoMediaStorageRepositoryBase, IMediaStorageRepository
     {
-        public MongoMediaStorageRepository(IMongoDbContextProvider<PawsomePetsMongoDbContext> dbContextProvider)
+        private readonly string _selectedBlobProvider;
+        protected IConfiguration _configuration;
+        protected IFileService _fileService;
+        private readonly IBlobContainer<DatabaseContainer> _databaseContainer;
+        private readonly IBlobContainer<FileSystemContainer> _fileSystemContainer;
+        private readonly IBlobContainer<AwsContainer> _awsContainer;
+        private readonly IBlobContainer<AzureContainer> _azureContainer;
+        public MongoMediaStorageRepository(IMongoDbContextProvider<PawsomePetsMongoDbContext> dbContextProvider,
+            IConfiguration configuration, IFileService fileService, IBlobContainer<DatabaseContainer> databaseContainer, IBlobContainer<FileSystemContainer> fileSystemContainer, IBlobContainer<AwsContainer> awsContainer, IBlobContainer<AzureContainer> azureContainer)
             : base(dbContextProvider)
         {
+            _configuration = configuration;
+            _selectedBlobProvider = _configuration.GetValue<string>("SelectedBlobProvider");
+            _fileService = fileService;
+            _databaseContainer = databaseContainer;
+            _fileSystemContainer = fileSystemContainer;
+            _awsContainer = awsContainer;
+            _azureContainer = azureContainer;
         }
 
-        //Write your custom code...
+        public async Task<object> UploadImage(ImageUpload imageUpload)
+        {
+            try
+            {
+                var imageURL = "";
+                switch (_selectedBlobProvider)
+                {
+                    case "Azure":
+                        {
+                            var contentBytes = Convert.FromBase64String(imageUpload.ImageBytes);
+                            var fileUpload = _fileService.ConvertBase64ToIFormFile(imageUpload.ImageBytes);
+                            var name = fileUpload.FileName;
+                            await _azureContainer.SaveAsync(name, contentBytes, false);
+                            var blob = await _azureContainer.GetAllBytesAsync(name);
+                            imageURL = $"/image-azure/{name}";
+
+                            return new
+                            {
+                                imageUrl = imageURL,
+                                imageName = name
+                            };
+                        }
+
+                    case "AmazonS3":
+                        {
+                            var contentBytes = Convert.FromBase64String(imageUpload.ImageBytes);
+                            var fileUpload = _fileService.ConvertBase64ToIFormFile(imageUpload.ImageBytes);
+                            var name = fileUpload.FileName;
+                            await _awsContainer.SaveAsync(name, contentBytes, false);
+                            var blob = await _awsContainer.GetAllBytesAsync(name);
+                            imageURL = $"/image-aws/{name}";
+
+                            return new
+                            {
+                                imageUrl = imageURL,
+                                imageName = name
+                            };
+                        }
+                    case "Database":
+                        {
+                            var contentBytes = Convert.FromBase64String(imageUpload.ImageBytes);
+                            var name = $"{Guid.NewGuid()}.jpg";
+                            await _databaseContainer.SaveAsync(name, contentBytes, overrideExisting: false);
+                            var blob = await _databaseContainer.GetAllBytesAsync(name);
+                            var imageUrl = $"/image/{name}";
+
+                            return new
+                            {
+                                imageUrl,
+                                imageName = name
+                            };
+                        }
+                    case "FileSystem":
+                        {
+                            var contentBytes = Convert.FromBase64String(imageUpload.ImageBytes);
+                            var name = $"{Guid.NewGuid()}.jpg";
+                            var baseUrl = _configuration.GetValue<string>("App:BaseUrl");
+                            var path = _configuration.GetValue<string>("FileSystemPath");
+                            await _fileSystemContainer.SaveAsync(name, contentBytes, false);
+                            imageURL = $"{baseUrl}/{path.Substring(path.IndexOf('/') + 1)}/host/file-system/{name}";
+
+                            return new
+                            {
+                                imageUrl = imageURL,
+                                imageName = name,
+                            };
+                        }
+                }
+
+                throw new Exception("Image upload failed");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during image upload: {ex.Message}");
+                throw new Exception("Image upload failed");
+            }
+        }
     }
 }

@@ -1,7 +1,10 @@
+using PawsomePets.AbpBlobContainers;
+using System.Threading.Tasks;
+
 namespace PawsomePets.MediaStorages
 {
     public partial interface IMediaStoragesAppService
     {
-        //Write your custom code here...
+        Task<object> UploadImage(ImageUploadDto imageUploadDto);
     }
 }
