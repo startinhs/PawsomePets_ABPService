@@ -33,26 +33,23 @@ namespace PawsomePets.Controllers
 
         [Route("image/{name}")]
         [HttpGet]
-        public async Task<IActionResult> GetBlob(string name)
+        public async Task<object> GetBlob(string name)
         {
-            var blob = await _databaseContainer.GetAllBytesAsync(name);
-            return new FileContentResult(blob, "image/jpeg");
+            return await _mediaStoragesAppService.GetBlob(name);
         }
 
         [Route("image-aws/{name}")]
         [HttpGet]
-        public async Task<IActionResult> GetBlobAws(string name)
+        public async Task<object> GetBlobAws(string name)
         {
-            var blob = await _awsContainer.GetAllBytesAsync(name);
-            return new FileContentResult(blob, "image/jpeg");
+            return await _mediaStoragesAppService.GetBlobAws(name);
         }
 
         [Route("image-azure/{name}")]
         [HttpGet]
-        public async Task<IActionResult> GetBlobAzure(string name)
+        public async Task<object> GetBlobAzure(string name)
         {
-            var blob = await _azureContainer.GetAllBytesAsync(name);
-            return new FileContentResult(blob, "image/jpeg");
+            return await _mediaStoragesAppService.GetBlobAzure(name);
         }
 
         [Route("upload-image")]
@@ -60,6 +57,13 @@ namespace PawsomePets.Controllers
         public async Task<object> UploadImage([FromBody] ImageUploadDto imageUploadDto)
         {
             return await _mediaStoragesAppService.UploadImage(imageUploadDto);
+        }
+
+        [Route("delete-file")]
+        [HttpDelete]
+        public async Task<object> DeleteFileByAbp(string fileName)
+        {
+            return await _mediaStoragesAppService.DeleteFile(fileName);
         }
     }
 }

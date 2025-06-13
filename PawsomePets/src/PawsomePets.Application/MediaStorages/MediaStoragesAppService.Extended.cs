@@ -36,15 +36,65 @@ namespace PawsomePets.MediaStorages
             _azureContainer = azureContainer;
         }
 
-        public async Task<object> UploadImage(AbpImageUploadDto imageUploadDto)
+        public async Task<object> GetBlob(string name)
         {
-            try { 
+            try
+            {
+                var blob = await _databaseContainer.GetAllBytesAsync(name);
+                return new FileContentResult(blob, "image/jpeg");
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+        public async Task<object> GetBlobAws(string name)
+        {
+            try
+            {
+                var blob = await _awsContainer.GetAllBytesAsync(name);
+                return new FileContentResult(blob, "image/jpeg");
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+        public async Task<object> GetBlobAzure(string name)
+        {
+            try
+            {
+                var blob = await _azureContainer.GetAllBytesAsync(name);
+                return new FileContentResult(blob, "image/jpeg");
+            }
+            catch (Exception ex)
+            { 
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        public async Task<object> UploadImage(ImageUploadDto imageUploadDto)
+        {
+            try 
+            { 
                 var image = new ImageUpload
                 {
                     ImageBytes = imageUploadDto.ImageBytes
                 };
 
                 return await _mediaStorageRepository.UploadImage(image);
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException(ex.Message);
+            }
+        }
+
+        public async Task<object> DeleteFile(string fileName)
+        {
+            try
+            {
+                return await _mediaStorageRepository.DeleteFile(fileName);
             }
             catch (Exception ex)
             {

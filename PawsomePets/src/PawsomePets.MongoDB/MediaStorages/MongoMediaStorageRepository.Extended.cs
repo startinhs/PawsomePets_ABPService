@@ -115,5 +115,30 @@ namespace PawsomePets.MediaStorages
                 throw new Exception("Image upload failed");
             }
         }
+
+        public async Task<object> DeleteFile(string fileName)
+        {
+            try
+            {
+                switch (_selectedBlobProvider)
+                {
+                    case "Azure":
+                        return await _azureContainer.DeleteAsync(fileName);
+                    case "AmazonS3":
+                        return await _awsContainer.DeleteAsync(fileName);
+                    case "Database":
+                        return await _databaseContainer.DeleteAsync(fileName);
+                    case "FileSystem":
+                        return await _fileSystemContainer.DeleteAsync(fileName);
+                }
+                throw new Exception("Image delete failed");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+
+            return true;
+        }
     }
 }
