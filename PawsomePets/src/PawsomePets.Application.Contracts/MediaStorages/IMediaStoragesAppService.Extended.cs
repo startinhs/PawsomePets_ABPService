@@ -8,7 +8,7 @@ namespace PawsomePets.MediaStorages
         Task<object> GetBlob(string name);
         Task<object> GetBlobAws(string name);
         Task<object> GetBlobAzure(string name);
-        Task<object> UploadImage(ImageUploadDto imageUploadDto);
+        Task<object> UploadFile(FileUpload fileUpload);
         Task<object> DeleteFile(string fileName);
     }
 }

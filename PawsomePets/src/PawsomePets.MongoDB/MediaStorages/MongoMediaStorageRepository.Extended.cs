@@ -38,18 +38,17 @@ namespace PawsomePets.MediaStorages
             _azureContainer = azureContainer;
         }
 
-        public async Task<object> UploadImage(ImageUpload imageUpload)
+        public async Task<object> UploadFile(FileUpload fileUpload)
         {
             try
             {
                 var imageURL = "";
+                var contentBytes = Convert.FromBase64String(fileUpload.FileBytes);
+                var name = $"{fileUpload.FileName}.{fileUpload.FileExtension}";
                 switch (_selectedBlobProvider)
                 {
                     case "Azure":
                         {
-                            var contentBytes = Convert.FromBase64String(imageUpload.ImageBytes);
-                            var fileUpload = _fileService.ConvertBase64ToIFormFile(imageUpload.ImageBytes);
-                            var name = fileUpload.FileName;
                             await _azureContainer.SaveAsync(name, contentBytes, false);
                             var blob = await _azureContainer.GetAllBytesAsync(name);
                             imageURL = $"/image-azure/{name}";
@@ -63,9 +62,6 @@ namespace PawsomePets.MediaStorages
 
                     case "AmazonS3":
                         {
-                            var contentBytes = Convert.FromBase64String(imageUpload.ImageBytes);
-                            var fileUpload = _fileService.ConvertBase64ToIFormFile(imageUpload.ImageBytes);
-                            var name = fileUpload.FileName;
                             await _awsContainer.SaveAsync(name, contentBytes, false);
                             var blob = await _awsContainer.GetAllBytesAsync(name);
                             imageURL = $"/image-aws/{name}";
@@ -78,8 +74,6 @@ namespace PawsomePets.MediaStorages
                         }
                     case "Database":
                         {
-                            var contentBytes = Convert.FromBase64String(imageUpload.ImageBytes);
-                            var name = $"{Guid.NewGuid()}.jpg";
                             await _databaseContainer.SaveAsync(name, contentBytes, overrideExisting: false);
                             var blob = await _databaseContainer.GetAllBytesAsync(name);
                             var imageUrl = $"/image/{name}";
@@ -91,13 +85,10 @@ namespace PawsomePets.MediaStorages
                             };
                         }
                     case "FileSystem":
-                        {
-                            var contentBytes = Convert.FromBase64String(imageUpload.ImageBytes);
-                            var name = $"{Guid.NewGuid()}.jpg";
-                            var baseUrl = _configuration.GetValue<string>("App:BaseUrl");
+                        {   
                             var path = _configuration.GetValue<string>("FileSystemPath");
                             await _fileSystemContainer.SaveAsync(name, contentBytes, false);
-                            imageURL = $"{baseUrl}/{path.Substring(path.IndexOf('/') + 1)}/host/file-system/{name}";
+                            imageURL = $"/{path.Substring(path.IndexOf('/') + 1)}/host/file-system/{name}";
 
                             return new
                             {
@@ -106,13 +97,14 @@ namespace PawsomePets.MediaStorages
                             };
                         }
                 }
+                var _dbContext = await GetDbContextAsync();
 
-                throw new Exception("Image upload failed");
+                throw new Exception($"File upload failed from provider: {_selectedBlobProvider}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during image upload: {ex.Message}");
-                throw new Exception("Image upload failed");
+                Console.WriteLine($"Error during file upload: {ex.Message}");
+                throw new Exception("File upload failed from service");
             }
         }
 

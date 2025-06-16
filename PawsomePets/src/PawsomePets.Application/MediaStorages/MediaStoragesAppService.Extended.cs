@@ -73,16 +73,11 @@ namespace PawsomePets.MediaStorages
             }
         }
 
-        public async Task<object> UploadImage(ImageUploadDto imageUploadDto)
+        public async Task<object> UploadFile(FileUpload fileUpload)
         {
             try 
             { 
-                var image = new ImageUpload
-                {
-                    ImageBytes = imageUploadDto.ImageBytes
-                };
-
-                return await _mediaStorageRepository.UploadImage(image);
+                return await _mediaStorageRepository.UploadFile(fileUpload);
             }
             catch (Exception ex)
             {

@@ -52,11 +52,11 @@ namespace PawsomePets.Controllers
             return await _mediaStoragesAppService.GetBlobAzure(name);
         }
 
-        [Route("upload-image")]
+        [Route("upload-file")]
         [HttpPost]
-        public async Task<object> UploadImage([FromBody] ImageUploadDto imageUploadDto)
+        public async Task<object> UploadFile([FromBody] FileUpload fileUpload)
         {
-            return await _mediaStoragesAppService.UploadImage(imageUploadDto);
+            return await _mediaStoragesAppService.UploadFile(fileUpload);
         }
 
         [Route("delete-file")]

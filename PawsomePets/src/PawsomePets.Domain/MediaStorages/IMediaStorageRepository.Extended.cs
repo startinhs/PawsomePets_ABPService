@@ -5,7 +5,7 @@ namespace PawsomePets.MediaStorages
 {
     public partial interface IMediaStorageRepository
     {
-        Task<object> UploadImage(ImageUpload image);
+        Task<object> UploadFile(FileUpload fileUpload);
         Task<object> DeleteFile(string fileName);
     }
 }
