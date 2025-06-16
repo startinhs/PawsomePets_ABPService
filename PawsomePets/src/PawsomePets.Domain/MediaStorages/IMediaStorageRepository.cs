@@ -11,8 +11,8 @@ namespace PawsomePets.MediaStorages
 
         Task DeleteAllAsync(
             string? filterText = null,
-            string? imageName = null,
-            string? imageUrl = null,
+            string? fileName = null,
+            string? fileUrl = null,
             string? description = null,
             string? fileType = null,
             float? fileSizeMin = null,
@@ -26,8 +26,8 @@ namespace PawsomePets.MediaStorages
             CancellationToken cancellationToken = default);
         Task<List<MediaStorage>> GetListAsync(
                     string? filterText = null,
-                    string? imageName = null,
-                    string? imageUrl = null,
+                    string? fileName = null,
+                    string? fileUrl = null,
                     string? description = null,
                     string? fileType = null,
                     float? fileSizeMin = null,
@@ -46,8 +46,8 @@ namespace PawsomePets.MediaStorages
 
         Task<long> GetCountAsync(
             string? filterText = null,
-            string? imageName = null,
-            string? imageUrl = null,
+            string? fileName = null,
+            string? fileUrl = null,
             string? description = null,
             string? fileType = null,
             float? fileSizeMin = null,

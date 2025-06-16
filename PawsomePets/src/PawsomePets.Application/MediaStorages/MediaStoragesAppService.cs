@@ -38,8 +38,8 @@ namespace PawsomePets.MediaStorages
 
         public virtual async Task<PagedResultDto<MediaStorageDto>> GetListAsync(GetMediaStoragesInput input)
         {
-            var totalCount = await _mediaStorageRepository.GetCountAsync(input.FilterText, input.ImageName, input.ImageUrl, input.Description, input.FileType, input.FileSizeMin, input.FileSizeMax, input.IsMain, input.ProviderName, input.ContainerName, input.EntityIdMin, input.EntityIdMax, input.EntityType);
-            var items = await _mediaStorageRepository.GetListAsync(input.FilterText, input.ImageName, input.ImageUrl, input.Description, input.FileType, input.FileSizeMin, input.FileSizeMax, input.IsMain, input.ProviderName, input.ContainerName, input.EntityIdMin, input.EntityIdMax, input.EntityType, input.Sorting, input.MaxResultCount, input.SkipCount);
+            var totalCount = await _mediaStorageRepository.GetCountAsync(input.FilterText, input.FileName, input.FileUrl, input.Description, input.FileType, input.FileSizeMin, input.FileSizeMax, input.IsMain, input.ProviderName, input.ContainerName, input.EntityIdMin, input.EntityIdMax, input.EntityType);
+            var items = await _mediaStorageRepository.GetListAsync(input.FilterText, input.FileName, input.FileUrl, input.Description, input.FileType, input.FileSizeMin, input.FileSizeMax, input.IsMain, input.ProviderName, input.ContainerName, input.EntityIdMin, input.EntityIdMax, input.EntityType, input.Sorting, input.MaxResultCount, input.SkipCount);
 
             return new PagedResultDto<MediaStorageDto>
             {
@@ -64,7 +64,7 @@ namespace PawsomePets.MediaStorages
         {
 
             var mediaStorage = await _mediaStorageManager.CreateAsync(
-            input.IsMain, input.ImageName, input.ImageUrl, input.Description, input.FileType, input.FileSize, input.ProviderName, input.ContainerName, input.EntityId, input.EntityType
+            input.IsMain, input.FileName, input.FileUrl, input.Description, input.FileType, input.FileSize, input.ProviderName, input.ContainerName, input.EntityId, input.EntityType
             );
 
             return ObjectMapper.Map<MediaStorage, MediaStorageDto>(mediaStorage);
@@ -76,7 +76,7 @@ namespace PawsomePets.MediaStorages
 
             var mediaStorage = await _mediaStorageManager.UpdateAsync(
             id,
-            input.IsMain, input.ImageName, input.ImageUrl, input.Description, input.FileType, input.FileSize, input.ProviderName, input.ContainerName, input.EntityId, input.EntityType, input.ConcurrencyStamp
+            input.IsMain, input.FileName, input.FileUrl, input.Description, input.FileType, input.FileSize, input.ProviderName, input.ContainerName, input.EntityId, input.EntityType, input.ConcurrencyStamp
             );
 
             return ObjectMapper.Map<MediaStorage, MediaStorageDto>(mediaStorage);
@@ -91,7 +91,7 @@ namespace PawsomePets.MediaStorages
                 throw new AbpAuthorizationException("Invalid download token: " + input.DownloadToken);
             }
 
-            var items = await _mediaStorageRepository.GetListAsync(input.FilterText, input.ImageName, input.ImageUrl, input.Description, input.FileType, input.FileSizeMin, input.FileSizeMax, input.IsMain, input.ProviderName, input.ContainerName, input.EntityIdMin, input.EntityIdMax, input.EntityType);
+            var items = await _mediaStorageRepository.GetListAsync(input.FilterText, input.FileName, input.FileUrl, input.Description, input.FileType, input.FileSizeMin, input.FileSizeMax, input.IsMain, input.ProviderName, input.ContainerName, input.EntityIdMin, input.EntityIdMax, input.EntityType);
 
             var memoryStream = new MemoryStream();
             await memoryStream.SaveAsAsync(ObjectMapper.Map<List<MediaStorage>, List<MediaStorageExcelDto>>(items));
@@ -109,7 +109,7 @@ namespace PawsomePets.MediaStorages
         [Authorize(PawsomePetsPermissions.MediaStorages.Delete)]
         public virtual async Task DeleteAllAsync(GetMediaStoragesInput input)
         {
-            await _mediaStorageRepository.DeleteAllAsync(input.FilterText, input.ImageName, input.ImageUrl, input.Description, input.FileType, input.FileSizeMin, input.FileSizeMax, input.IsMain, input.ProviderName, input.ContainerName, input.EntityIdMin, input.EntityIdMax, input.EntityType);
+            await _mediaStorageRepository.DeleteAllAsync(input.FilterText, input.FileName, input.FileUrl, input.Description, input.FileType, input.FileSizeMin, input.FileSizeMax, input.IsMain, input.ProviderName, input.ContainerName, input.EntityIdMin, input.EntityIdMax, input.EntityType);
         }
         public virtual async Task<PawsomePets.Shared.DownloadTokenResultDto> GetDownloadTokenAsync()
         {

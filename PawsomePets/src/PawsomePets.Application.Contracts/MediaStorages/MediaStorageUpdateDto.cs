@@ -7,9 +7,9 @@ namespace PawsomePets.MediaStorages
 {
     public abstract class MediaStorageUpdateDtoBase : IHasConcurrencyStamp
     {
-        [StringLength(MediaStorageConsts.ImageNameMaxLength)]
-        public string? ImageName { get; set; }
-        public string? ImageUrl { get; set; }
+        [StringLength(MediaStorageConsts.FileNameMaxLength)]
+        public string? FileName { get; set; }
+        public string? FileUrl { get; set; }
         public string? Description { get; set; }
         [StringLength(MediaStorageConsts.FileTypeMaxLength)]
         public string? FileType { get; set; }

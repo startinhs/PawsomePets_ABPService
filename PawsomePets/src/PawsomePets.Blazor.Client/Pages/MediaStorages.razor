@@ -74,14 +74,14 @@
             <Row>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
-                        <FieldLabel>@L["ImageName"]</FieldLabel>
-                        <TextEdit Text="@Filter.ImageName" TextChanged="@OnImageNameChangedAsync" />                       
+                        <FieldLabel>@L["FileName"]</FieldLabel>
+                        <TextEdit Text="@Filter.FileName" TextChanged="@OnFileNameChangedAsync" />                       
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
                     <Field>
-                        <FieldLabel>@L["ImageUrl"]</FieldLabel>
-                        <TextEdit Text="@Filter.ImageUrl" TextChanged="@OnImageUrlChangedAsync" />                       
+                        <FieldLabel>@L["FileUrl"]</FieldLabel>
+                        <TextEdit Text="@Filter.FileUrl" TextChanged="@OnFileUrlChangedAsync" />                       
                     </Field>
                 </Column>
                 <Column ColumnSize="ColumnSize.Is3">
@@ -275,13 +275,13 @@
                 </DataGridEntityActionsColumn>
                
               <DataGridColumn TItem="MediaStorageDto"
-                      Field="ImageName"
-                      Caption="@L["ImageName"]">
+                      Field="FileName"
+                      Caption="@L["FileName"]">
               </DataGridColumn>
 
               <DataGridColumn TItem="MediaStorageDto"
-                      Field="ImageUrl"
-                      Caption="@L["ImageUrl"]">
+                      Field="FileUrl"
+                      Caption="@L["FileUrl"]">
               </DataGridColumn>
 
               <DataGridColumn TItem="MediaStorageDto"
@@ -361,8 +361,8 @@
                     
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
-                            <FieldLabel>@L["ImageName"]</FieldLabel>
-                            <TextEdit @bind-Text="@NewMediaStorage.ImageName" MaxLength="MediaStorageConsts.ImageNameMaxLength" >
+                            <FieldLabel>@L["FileName"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewMediaStorage.FileName" MaxLength="MediaStorageConsts.FileNameMaxLength" >
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>
@@ -373,8 +373,8 @@
 
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
-                            <FieldLabel>@L["ImageUrl"]</FieldLabel>
-                            <TextEdit @bind-Text="@NewMediaStorage.ImageUrl"  >
+                            <FieldLabel>@L["FileUrl"]</FieldLabel>
+                            <TextEdit @bind-Text="@NewMediaStorage.FileUrl"  >
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>
@@ -509,8 +509,8 @@
                     
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
-                            <FieldLabel>@L["ImageName"]</FieldLabel>
-                            <TextEdit @bind-Text="@EditingMediaStorage.ImageName" MaxLength="MediaStorageConsts.ImageNameMaxLength" >
+                            <FieldLabel>@L["FileName"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingMediaStorage.FileName" MaxLength="MediaStorageConsts.FileNameMaxLength" >
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>
@@ -521,8 +521,8 @@
 
                     <Validation MessageLocalizer="@LH.Localize">
                         <Field>
-                            <FieldLabel>@L["ImageUrl"]</FieldLabel>
-                            <TextEdit @bind-Text="@EditingMediaStorage.ImageUrl"  >
+                            <FieldLabel>@L["FileUrl"]</FieldLabel>
+                            <TextEdit @bind-Text="@EditingMediaStorage.FileUrl"  >
                                 <Feedback>
                                     <ValidationError />
                                 </Feedback>

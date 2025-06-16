@@ -114,6 +114,8 @@
     "MaxFileSize": "Max File Size",
     "MaxEntityId": "Max Entity Id",
     "NewMediaStorage": "New Media Storage",
-    "Menu:MediaStorages": "Media Storages"
+    "Menu:MediaStorages": "Media Storages",
+    "FileName": "File Name",
+    "FileUrl": "File Url"
   }
 }

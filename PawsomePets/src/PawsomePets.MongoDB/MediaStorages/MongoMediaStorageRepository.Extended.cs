@@ -1,18 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Threading;
 using System.Threading.Tasks;
 using PawsomePets.MongoDB;
-using Volo.Abp.Domain.Repositories.MongoDB;
 using Volo.Abp.MongoDB;
-using MongoDB.Driver.Linq;
-using MongoDB.Driver;
 using Microsoft.Extensions.Configuration;
 using PawsomePets.AbpBlobContainers;
 using Volo.Abp.BlobStoring;
 using PawsomePets.Services.FileService;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace PawsomePets.MediaStorages
 {
@@ -38,21 +33,59 @@ namespace PawsomePets.MediaStorages
             _azureContainer = azureContainer;
         }
 
+        public async Task<object> GetImageByFileName(string fileName, bool isDownload)
+        {
+            try
+            {
+                byte[] blob = _selectedBlobProvider switch
+                {
+                    "Azure" => await _azureContainer.GetAllBytesAsync(fileName),
+                    "AmazonS3" => await _awsContainer.GetAllBytesAsync(fileName),
+                    "Database" => await _databaseContainer.GetAllBytesAsync(fileName),
+                    _ => throw new Exception($"Unsupported provider: {_selectedBlobProvider}")
+                };
+
+                var contentType = GetContentType(fileName);
+
+                if (isDownload)
+                {
+                    return new FileContentResult(blob, contentType)
+                    {
+                        FileDownloadName = fileName
+                    };
+                }
+
+                return new FileContentResult(blob, contentType);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Get file error: {ex.Message}");
+                throw new Exception("Unable to get file.");
+            }
+        }
+
+        private string GetContentType(string fileName)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            return provider.TryGetContentType(fileName, out var contentType)
+                ? contentType
+                : "application/octet-stream";
+        }
+
         public async Task<object> UploadFile(FileUpload fileUpload)
         {
             try
             {
-                var imageURL = "";
+                
                 var contentBytes = Convert.FromBase64String(fileUpload.FileBytes);
                 var name = $"{fileUpload.FileName}.{fileUpload.FileExtension}";
+                var imageURL = $"/media/{name}";
                 switch (_selectedBlobProvider)
                 {
                     case "Azure":
                         {
                             await _azureContainer.SaveAsync(name, contentBytes, false);
                             var blob = await _azureContainer.GetAllBytesAsync(name);
-                            imageURL = $"/image-azure/{name}";
-
                             return new
                             {
                                 imageUrl = imageURL,
@@ -64,8 +97,6 @@ namespace PawsomePets.MediaStorages
                         {
                             await _awsContainer.SaveAsync(name, contentBytes, false);
                             var blob = await _awsContainer.GetAllBytesAsync(name);
-                            imageURL = $"/image-aws/{name}";
-
                             return new
                             {
                                 imageUrl = imageURL,
@@ -76,11 +107,9 @@ namespace PawsomePets.MediaStorages
                         {
                             await _databaseContainer.SaveAsync(name, contentBytes, overrideExisting: false);
                             var blob = await _databaseContainer.GetAllBytesAsync(name);
-                            var imageUrl = $"/image/{name}";
-
                             return new
                             {
-                                imageUrl,
+                                imageUrl = imageURL,
                                 imageName = name
                             };
                         }

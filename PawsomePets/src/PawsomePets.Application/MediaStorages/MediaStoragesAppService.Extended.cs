@@ -36,47 +36,22 @@ namespace PawsomePets.MediaStorages
             _azureContainer = azureContainer;
         }
 
-        public async Task<object> GetBlob(string name)
+        public async Task<object> GetImageByFileName(string fileName, bool isDownload)
         {
             try
             {
-                var blob = await _databaseContainer.GetAllBytesAsync(name);
-                return new FileContentResult(blob, "image/jpeg");
+                return await _mediaStorageRepository.GetImageByFileName(fileName, isDownload);
             }
             catch (Exception ex)
             {
-                throw new UserFriendlyException(ex.Message);
-            }
-        }
-        public async Task<object> GetBlobAws(string name)
-        {
-            try
-            {
-                var blob = await _awsContainer.GetAllBytesAsync(name);
-                return new FileContentResult(blob, "image/jpeg");
-            }
-            catch (Exception ex)
-            {
-                throw new UserFriendlyException(ex.Message);
-            }
-        }
-        public async Task<object> GetBlobAzure(string name)
-        {
-            try
-            {
-                var blob = await _azureContainer.GetAllBytesAsync(name);
-                return new FileContentResult(blob, "image/jpeg");
-            }
-            catch (Exception ex)
-            { 
                 throw new UserFriendlyException(ex.Message);
             }
         }
 
         public async Task<object> UploadFile(FileUpload fileUpload)
         {
-            try 
-            { 
+            try
+            {
                 return await _mediaStorageRepository.UploadFile(fileUpload);
             }
             catch (Exception ex)

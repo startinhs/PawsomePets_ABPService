@@ -17,10 +17,10 @@ namespace PawsomePets.MediaStorages
         public virtual Guid? TenantId { get; set; }
 
         [CanBeNull]
-        public virtual string? ImageName { get; set; }
+        public virtual string? FileName { get; set; }
 
         [CanBeNull]
-        public virtual string? ImageUrl { get; set; }
+        public virtual string? FileUrl { get; set; }
 
         [CanBeNull]
         public virtual string? Description { get; set; }
@@ -50,18 +50,18 @@ namespace PawsomePets.MediaStorages
 
         }
 
-        public MediaStorageBase(bool isMain, string? imageName = null, string? imageUrl = null, string? description = null, string? fileType = null, float? fileSize = null, string? providerName = null, string? containerName = null, int? entityId = null, string? entityType = null)
+        public MediaStorageBase(bool isMain, string? fileName = null, string? fileUrl = null, string? description = null, string? fileType = null, float? fileSize = null, string? providerName = null, string? containerName = null, int? entityId = null, string? entityType = null)
         {
             ConcurrencyStamp = Guid.NewGuid().ToString("N");
 
-            Check.Length(imageName, nameof(imageName), MediaStorageConsts.ImageNameMaxLength, 0);
+            Check.Length(fileName, nameof(fileName), MediaStorageConsts.FileNameMaxLength, 0);
             Check.Length(fileType, nameof(fileType), MediaStorageConsts.FileTypeMaxLength, 0);
             Check.Length(providerName, nameof(providerName), MediaStorageConsts.ProviderNameMaxLength, 0);
             Check.Length(containerName, nameof(containerName), MediaStorageConsts.ContainerNameMaxLength, 0);
             Check.Length(entityType, nameof(entityType), MediaStorageConsts.EntityTypeMaxLength, 0);
             IsMain = isMain;
-            ImageName = imageName;
-            ImageUrl = imageUrl;
+            FileName = fileName;
+            FileUrl = fileUrl;
             Description = description;
             FileType = fileType;
             FileSize = fileSize;

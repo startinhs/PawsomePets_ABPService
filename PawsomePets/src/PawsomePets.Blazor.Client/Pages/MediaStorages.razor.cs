@@ -154,7 +154,7 @@ namespace PawsomePets.Blazor.Client.Pages
                 culture = "&culture=" + culture;
             }
             await RemoteServiceConfigurationProvider.GetConfigurationOrDefaultOrNullAsync("Default");
-            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/media-storages/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&ImageName={HttpUtility.UrlEncode(Filter.ImageName)}&ImageUrl={HttpUtility.UrlEncode(Filter.ImageUrl)}&Description={HttpUtility.UrlEncode(Filter.Description)}&FileType={HttpUtility.UrlEncode(Filter.FileType)}&FileSizeMin={Filter.FileSizeMin}&FileSizeMax={Filter.FileSizeMax}&IsMain={Filter.IsMain}&ProviderName={HttpUtility.UrlEncode(Filter.ProviderName)}&ContainerName={HttpUtility.UrlEncode(Filter.ContainerName)}&EntityIdMin={Filter.EntityIdMin}&EntityIdMax={Filter.EntityIdMax}&EntityType={HttpUtility.UrlEncode(Filter.EntityType)}", forceLoad: true);
+            NavigationManager.NavigateTo($"{remoteService?.BaseUrl.EnsureEndsWith('/') ?? string.Empty}api/app/media-storages/as-excel-file?DownloadToken={token}&FilterText={HttpUtility.UrlEncode(Filter.FilterText)}{culture}&FileName={HttpUtility.UrlEncode(Filter.FileName)}&FileUrl={HttpUtility.UrlEncode(Filter.FileUrl)}&Description={HttpUtility.UrlEncode(Filter.Description)}&FileType={HttpUtility.UrlEncode(Filter.FileType)}&FileSizeMin={Filter.FileSizeMin}&FileSizeMax={Filter.FileSizeMax}&IsMain={Filter.IsMain}&ProviderName={HttpUtility.UrlEncode(Filter.ProviderName)}&ContainerName={HttpUtility.UrlEncode(Filter.ContainerName)}&EntityIdMin={Filter.EntityIdMin}&EntityIdMax={Filter.EntityIdMax}&EntityType={HttpUtility.UrlEncode(Filter.EntityType)}", forceLoad: true);
         }
 
         private async Task OnDataGridReadAsync(DataGridReadDataEventArgs<MediaStorageDto> e)
@@ -272,14 +272,14 @@ namespace PawsomePets.Blazor.Client.Pages
 
 
 
-        protected virtual async Task OnImageNameChangedAsync(string? imageName)
+        protected virtual async Task OnFileNameChangedAsync(string? fileName)
         {
-            Filter.ImageName = imageName;
+            Filter.FileName = fileName;
             await SearchAsync();
         }
-        protected virtual async Task OnImageUrlChangedAsync(string? imageUrl)
+        protected virtual async Task OnFileUrlChangedAsync(string? fileUrl)
         {
-            Filter.ImageUrl = imageUrl;
+            Filter.FileUrl = fileUrl;
             await SearchAsync();
         }
         protected virtual async Task OnDescriptionChangedAsync(string? description)

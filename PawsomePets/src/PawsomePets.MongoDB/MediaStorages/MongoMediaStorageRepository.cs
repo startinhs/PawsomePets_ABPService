@@ -21,8 +21,8 @@ namespace PawsomePets.MediaStorages
 
         public virtual async Task DeleteAllAsync(
             string? filterText = null,
-                        string? imageName = null,
-            string? imageUrl = null,
+                        string? fileName = null,
+            string? fileUrl = null,
             string? description = null,
             string? fileType = null,
             float? fileSizeMin = null,
@@ -35,7 +35,7 @@ namespace PawsomePets.MediaStorages
             string? entityType = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, imageName, imageUrl, description, fileType, fileSizeMin, fileSizeMax, isMain, providerName, containerName, entityIdMin, entityIdMax, entityType);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, fileName, fileUrl, description, fileType, fileSizeMin, fileSizeMax, isMain, providerName, containerName, entityIdMin, entityIdMax, entityType);
 
             var ids = query.Select(x => x.Id);
             await DeleteManyAsync(ids, cancellationToken: GetCancellationToken(cancellationToken));
@@ -43,8 +43,8 @@ namespace PawsomePets.MediaStorages
 
         public virtual async Task<List<MediaStorage>> GetListAsync(
             string? filterText = null,
-            string? imageName = null,
-            string? imageUrl = null,
+            string? fileName = null,
+            string? fileUrl = null,
             string? description = null,
             string? fileType = null,
             float? fileSizeMin = null,
@@ -60,7 +60,7 @@ namespace PawsomePets.MediaStorages
             int skipCount = 0,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, imageName, imageUrl, description, fileType, fileSizeMin, fileSizeMax, isMain, providerName, containerName, entityIdMin, entityIdMax, entityType);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, fileName, fileUrl, description, fileType, fileSizeMin, fileSizeMax, isMain, providerName, containerName, entityIdMin, entityIdMax, entityType);
             query = query.OrderBy(string.IsNullOrWhiteSpace(sorting) ? MediaStorageConsts.GetDefaultSorting(false) : sorting);
             return await query.As<IMongoQueryable<MediaStorage>>()
                 .PageBy<MediaStorage, IMongoQueryable<MediaStorage>>(skipCount, maxResultCount)
@@ -69,8 +69,8 @@ namespace PawsomePets.MediaStorages
 
         public virtual async Task<long> GetCountAsync(
             string? filterText = null,
-            string? imageName = null,
-            string? imageUrl = null,
+            string? fileName = null,
+            string? fileUrl = null,
             string? description = null,
             string? fileType = null,
             float? fileSizeMin = null,
@@ -83,15 +83,15 @@ namespace PawsomePets.MediaStorages
             string? entityType = null,
             CancellationToken cancellationToken = default)
         {
-            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, imageName, imageUrl, description, fileType, fileSizeMin, fileSizeMax, isMain, providerName, containerName, entityIdMin, entityIdMax, entityType);
+            var query = ApplyFilter((await GetMongoQueryableAsync(cancellationToken)), filterText, fileName, fileUrl, description, fileType, fileSizeMin, fileSizeMax, isMain, providerName, containerName, entityIdMin, entityIdMax, entityType);
             return await query.As<IMongoQueryable<MediaStorage>>().LongCountAsync(GetCancellationToken(cancellationToken));
         }
 
         protected virtual IQueryable<MediaStorage> ApplyFilter(
             IQueryable<MediaStorage> query,
             string? filterText = null,
-            string? imageName = null,
-            string? imageUrl = null,
+            string? fileName = null,
+            string? fileUrl = null,
             string? description = null,
             string? fileType = null,
             float? fileSizeMin = null,
@@ -104,9 +104,9 @@ namespace PawsomePets.MediaStorages
             string? entityType = null)
         {
             return query
-                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.ImageName!.Contains(filterText!) || e.ImageUrl!.Contains(filterText!) || e.Description!.Contains(filterText!) || e.FileType!.Contains(filterText!) || e.ProviderName!.Contains(filterText!) || e.ContainerName!.Contains(filterText!) || e.EntityType!.Contains(filterText!))
-                    .WhereIf(!string.IsNullOrWhiteSpace(imageName), e => e.ImageName.Contains(imageName))
-                    .WhereIf(!string.IsNullOrWhiteSpace(imageUrl), e => e.ImageUrl.Contains(imageUrl))
+                .WhereIf(!string.IsNullOrWhiteSpace(filterText), e => e.FileName!.Contains(filterText!) || e.FileUrl!.Contains(filterText!) || e.Description!.Contains(filterText!) || e.FileType!.Contains(filterText!) || e.ProviderName!.Contains(filterText!) || e.ContainerName!.Contains(filterText!) || e.EntityType!.Contains(filterText!))
+                    .WhereIf(!string.IsNullOrWhiteSpace(fileName), e => e.FileName.Contains(fileName))
+                    .WhereIf(!string.IsNullOrWhiteSpace(fileUrl), e => e.FileUrl.Contains(fileUrl))
                     .WhereIf(!string.IsNullOrWhiteSpace(description), e => e.Description.Contains(description))
                     .WhereIf(!string.IsNullOrWhiteSpace(fileType), e => e.FileType.Contains(fileType))
                     .WhereIf(fileSizeMin.HasValue, e => e.FileSize >= fileSizeMin!.Value)

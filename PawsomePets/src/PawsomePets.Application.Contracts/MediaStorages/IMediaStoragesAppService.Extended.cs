@@ -5,9 +5,7 @@ namespace PawsomePets.MediaStorages
 {
     public partial interface IMediaStoragesAppService
     {
-        Task<object> GetBlob(string name);
-        Task<object> GetBlobAws(string name);
-        Task<object> GetBlobAzure(string name);
+        Task<object> GetImageByFileName(string fileName, bool isDownload);
         Task<object> UploadFile(FileUpload fileUpload);
         Task<object> DeleteFile(string fileName);
     }

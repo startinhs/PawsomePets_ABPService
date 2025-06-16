@@ -25,7 +25,7 @@
   "Properties": [
     {
       "Id": "e5c7acfe-a30f-4645-ac7a-12ee8773a619",
-      "Name": "ImageName",
+      "Name": "FileName",
       "Type": "string",
       "EnumType": "",
       "EnumNamespace": "",
@@ -54,7 +54,7 @@
     },
     {
       "Id": "c97ac231-b31d-4617-9e8a-b7406c0e89c7",
-      "Name": "ImageUrl",
+      "Name": "FileUrl",
       "Type": "string",
       "EnumType": "",
       "EnumNamespace": "",

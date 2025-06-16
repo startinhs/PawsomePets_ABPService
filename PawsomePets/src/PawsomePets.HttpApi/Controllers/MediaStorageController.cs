@@ -2,14 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using PawsomePets.AbpBlobContainers;
 using PawsomePets.MediaStorages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
-using Volo.Abp.BlobStoring;
 
 namespace PawsomePets.Controllers
 {
@@ -19,37 +14,23 @@ namespace PawsomePets.Controllers
     public class MediaStorageController : AbpController
     {
         protected IMediaStoragesAppService _mediaStoragesAppService;
-        private readonly IBlobContainer<DatabaseContainer> _databaseContainer;
-        private readonly IBlobContainer<AwsContainer> _awsContainer;
-        private readonly IBlobContainer<AzureContainer> _azureContainer;
-        public MediaStorageController(IMediaStoragesAppService mediaStoragesAppService, IBlobContainer<DatabaseContainer> databaseContainer,
-        IBlobContainer<AwsContainer> awsContainer, IBlobContainer<AzureContainer> azureContainer)
+        public MediaStorageController(IMediaStoragesAppService mediaStoragesAppService)
         {
             _mediaStoragesAppService = mediaStoragesAppService;
-            _databaseContainer = databaseContainer;
-            _awsContainer = awsContainer;
-            _azureContainer = azureContainer;
         }
 
-        [Route("image/{name}")]
+        [Route("media/{fileName}")]
         [HttpGet]
-        public async Task<object> GetBlob(string name)
+        public async Task<object> GetFileUrl(string fileName)
         {
-            return await _mediaStoragesAppService.GetBlob(name);
+            return await _mediaStoragesAppService.GetImageByFileName(fileName, isDownload: false);
         }
 
-        [Route("image-aws/{name}")]
+        [Route("download-file/{fileName}")]
         [HttpGet]
-        public async Task<object> GetBlobAws(string name)
+        public async Task<object> DownloadFile(string fileName)
         {
-            return await _mediaStoragesAppService.GetBlobAws(name);
-        }
-
-        [Route("image-azure/{name}")]
-        [HttpGet]
-        public async Task<object> GetBlobAzure(string name)
-        {
-            return await _mediaStoragesAppService.GetBlobAzure(name);
+            return await _mediaStoragesAppService.GetImageByFileName(fileName, isDownload: true);
         }
 
         [Route("upload-file")]

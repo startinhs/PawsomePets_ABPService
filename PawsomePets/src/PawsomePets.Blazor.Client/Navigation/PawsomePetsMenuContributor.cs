@@ -113,7 +113,7 @@ icon: "fa fa-file-alt",
                 PawsomePetsMenus.MediaStorages,
                 l["Menu:MediaStorages"],
                 url: "/media-storages",
-                icon: "fa fa-file-alt",
+icon: "fa fa-file-alt",
                 requiredPermissionName: PawsomePetsPermissions.MediaStorages.Default)
         );
     }

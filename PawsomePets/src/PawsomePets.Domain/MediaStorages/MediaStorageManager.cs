@@ -20,9 +20,9 @@ namespace PawsomePets.MediaStorages
         }
 
         public virtual async Task<MediaStorage> CreateAsync(
-        bool isMain, string? imageName = null, string? imageUrl = null, string? description = null, string? fileType = null, float? fileSize = null, string? providerName = null, string? containerName = null, int? entityId = null, string? entityType = null)
+        bool isMain, string? fileName = null, string? fileUrl = null, string? description = null, string? fileType = null, float? fileSize = null, string? providerName = null, string? containerName = null, int? entityId = null, string? entityType = null)
         {
-            Check.Length(imageName, nameof(imageName), MediaStorageConsts.ImageNameMaxLength);
+            Check.Length(fileName, nameof(fileName), MediaStorageConsts.FileNameMaxLength);
             Check.Length(fileType, nameof(fileType), MediaStorageConsts.FileTypeMaxLength);
             Check.Length(providerName, nameof(providerName), MediaStorageConsts.ProviderNameMaxLength);
             Check.Length(containerName, nameof(containerName), MediaStorageConsts.ContainerNameMaxLength);
@@ -30,7 +30,7 @@ namespace PawsomePets.MediaStorages
 
             var mediaStorage = new MediaStorage(
 
-             isMain, imageName, imageUrl, description, fileType, fileSize, providerName, containerName, entityId, entityType
+             isMain, fileName, fileUrl, description, fileType, fileSize, providerName, containerName, entityId, entityType
              );
 
             return await _mediaStorageRepository.InsertAsync(mediaStorage);
@@ -38,10 +38,10 @@ namespace PawsomePets.MediaStorages
 
         public virtual async Task<MediaStorage> UpdateAsync(
             int id,
-            bool isMain, string? imageName = null, string? imageUrl = null, string? description = null, string? fileType = null, float? fileSize = null, string? providerName = null, string? containerName = null, int? entityId = null, string? entityType = null, [CanBeNull] string? concurrencyStamp = null
+            bool isMain, string? fileName = null, string? fileUrl = null, string? description = null, string? fileType = null, float? fileSize = null, string? providerName = null, string? containerName = null, int? entityId = null, string? entityType = null, [CanBeNull] string? concurrencyStamp = null
         )
         {
-            Check.Length(imageName, nameof(imageName), MediaStorageConsts.ImageNameMaxLength);
+            Check.Length(fileName, nameof(fileName), MediaStorageConsts.FileNameMaxLength);
             Check.Length(fileType, nameof(fileType), MediaStorageConsts.FileTypeMaxLength);
             Check.Length(providerName, nameof(providerName), MediaStorageConsts.ProviderNameMaxLength);
             Check.Length(containerName, nameof(containerName), MediaStorageConsts.ContainerNameMaxLength);
@@ -50,8 +50,8 @@ namespace PawsomePets.MediaStorages
             var mediaStorage = await _mediaStorageRepository.GetAsync(id);
 
             mediaStorage.IsMain = isMain;
-            mediaStorage.ImageName = imageName;
-            mediaStorage.ImageUrl = imageUrl;
+            mediaStorage.FileName = fileName;
+            mediaStorage.FileUrl = fileUrl;
             mediaStorage.Description = description;
             mediaStorage.FileType = fileType;
             mediaStorage.FileSize = fileSize;

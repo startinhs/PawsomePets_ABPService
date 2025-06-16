@@ -5,6 +5,7 @@ namespace PawsomePets.MediaStorages
 {
     public partial interface IMediaStorageRepository
     {
+        Task<object> GetImageByFileName(string fileName, bool isDownload);
         Task<object> UploadFile(FileUpload fileUpload);
         Task<object> DeleteFile(string fileName);
     }
